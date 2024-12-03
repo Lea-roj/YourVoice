@@ -17,6 +17,8 @@ import {
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import { Post } from '../interfaces/Post';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface AddPostModalProps {
   isOpen: boolean;
@@ -130,10 +132,22 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           </FormControl>
           <FormControl mb={4}>
             <FormLabel>Vsebina</FormLabel>
-            <Textarea
-              placeholder="Vnesite vsebino"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+            <ReactQuill
+                theme="snow"
+                value={content}
+                onChange={setContent}
+                modules={{
+                  toolbar: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ color: [] }, { background: [] }],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [{ align: [] }],
+                    ['link'],
+                    ['clean'],
+                  ],
+                }}
+                placeholder="Vnesite vsebino"
             />
           </FormControl>
         </ModalBody>

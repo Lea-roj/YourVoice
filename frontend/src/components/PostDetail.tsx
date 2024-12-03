@@ -169,9 +169,23 @@ const PostDetail: React.FC = () => {
             Avtor:{' '}
             <strong>{post.userId?.username || 'Neznan uporabnik'}</strong>
           </Text>
-          <Text fontSize="md" lineHeight="tall" mt={4} color="gray.700">
-            {post.content}
-          </Text>
+          <Box
+              fontSize="md"
+              lineHeight="tall"
+              mt={4}
+              color="gray.700"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+              sx={{
+                h1: {fontSize: '2xl', fontWeight: 'bold', marginBottom: '1rem', color: 'teal.500'},
+                h2: {fontSize: 'xl', fontWeight: 'semibold', marginBottom: '0.75rem', color: 'teal.400'},
+                h3: {fontSize: 'lg', fontWeight: 'medium', marginBottom: '0.5rem', color: 'gray.700'},
+                ul: {marginLeft: '1.5rem'},
+                ol: {marginLeft: '1.5rem'},
+                li: {marginLeft: '0.5rem'},
+                a: {color: 'blue.500', textDecoration: 'underline'},
+              }}
+          ></Box>
+
           <Divider my={6} />
           <Heading as="h3" size="md" mb={4}>
             Komentarji
