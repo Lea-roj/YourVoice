@@ -69,6 +69,68 @@ const Posts: React.FC = () => {
       });
   };
 
+  const handleLikePost = async (postId: string) => {
+
+
+    try {
+      const response = await fetch(`http://localhost:3000/post/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: user?.username }), // Pošlje trenutno prijavljenega uporabnika
+      });
+  
+      if (!response.ok) {
+        throw new Error('Napaka pri všečkanju objave');
+      }
+  
+      const updatedPost = await response.json();
+      // setPosts((prevPosts) =>
+      //   prevPosts.map((post) =>
+      //     post._id === updatedPost._id ? updatedPost : post
+      //   )
+      // );
+      loadPosts();
+
+    } catch (error) {
+      console.error('Napaka pri všečkanju objave:', error);
+    }
+  };
+
+
+  const handleDislikePost = async (postId: string) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/post/${postId}/dislike`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: user?.username }), // Pošlje trenutno prijavljenega uporabnika
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Napaka pri nevšečkanju objave');
+    }
+
+    const updatedPost = await response.json();
+    // setPosts((prevPosts) =>
+    //   prevPosts.map((post) =>
+    //     post._id === updatedPost._id ? updatedPost : post
+    //   )
+    // );
+    loadPosts();
+
+  } catch (error) {
+    console.error('Napaka pri nevšečkanju objave:', error);
+  }
+};
+  
+  
+
   return (
     <Box p={6} maxW="container.lg" mx="auto">
       <Heading as="h2" size="xl" mb={6} textAlign="center">
@@ -125,6 +187,58 @@ const Posts: React.FC = () => {
                   </Button>
                 </Box>
               )}
+              {/* Dodani gumbi za like in dislike */}
+              <Box
+        mt={4}
+        display="flex"
+        justifyContent="flex-end"
+        alignItems="center"
+        gap={3}
+      >
+        {/* Like */}
+        <Box
+          display="flex"
+          alignItems="center"
+          bg="green.100"
+          borderRadius="full"
+          px={3}
+          py={1}
+        >
+          <Button
+            size="sm"
+            colorScheme="green"
+            variant="solid"
+            onClick={() => handleLikePost(post._id)}
+          >
+            Like
+          </Button>
+          <Text ml={2} fontWeight="bold" color="green.700" fontSize="sm">
+            {post.upvotes}
+          </Text>
+        </Box>
+
+        {/* Dislike */}
+        <Box
+          display="flex"
+          alignItems="center"
+          bg="red.100"
+          borderRadius="full"
+          px={3}
+          py={1}
+        >
+          <Button
+            size="sm"
+            colorScheme="red"
+            variant="solid"
+            onClick={() => handleDislikePost(post._id)}
+          >
+            Dislike
+          </Button>
+          <Text ml={2} fontWeight="bold" color="red.700" fontSize="sm">
+            {post.downvotes}
+          </Text>
+        </Box>
+      </Box>
             </Box>
           ))}
         </Stack>

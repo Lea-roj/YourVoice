@@ -188,4 +188,63 @@ module.exports = {
       });
     }
   },
+
+
+  likePost: async function (req, res) {
+    const { postId } = req.params;
+    const { username } = req.body;
+
+  
+    try {
+      const post = await PostModel.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+      // Remove from downvoteUsers if already downvoted
+      post.downvoteUsers = post.downvoteUsers.filter(user => user !== username);
+
+      // Add to upvoteUsers if not already liked
+      if (!post.upvoteUsers.includes(username)) {
+        post.upvoteUsers.push(username);
+      }
+
+  
+      post.upvotes = post.upvoteUsers.length; // Update the upvotes count
+      post.downvotes = post.downvoteUsers.length; // Update the downvotes count
+  
+      await post.save();
+      res.status(200).json({ message: 'Post liked successfully', post });
+    } catch (error) {
+      res.status(500).json({ message: 'An error occurred', error });
+    }
+  },
+  
+  // Dislike post
+  dislikePost: async function (req, res) {
+    const { postId } = req.params;
+    const { username } = req.body;
+  
+    try {
+      const post = await PostModel.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+  
+      // Remove from upvoteUsers if already upvoted
+      post.upvoteUsers = post.upvoteUsers.filter(user => user !== username);
+  
+      // Add to downvoteUsers if not already disliked
+      if (!post.downvoteUsers.includes(username)) {
+        post.downvoteUsers.push(username);
+      }
+  
+      post.upvotes = post.upvoteUsers.length; // Update the upvotes count
+      post.downvotes = post.downvoteUsers.length; // Update the downvotes count
+  
+      await post.save();
+      res.status(200).json({ message: 'Post disliked successfully', post });
+    } catch (error) {
+      res.status(500).json({ message: 'An error occurred', error });
+    }
+  }
 };

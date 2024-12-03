@@ -22,6 +22,9 @@ router.put('/:id', PostController.update);
 
 router.delete('/:id', PostController.remove);
 
+router.post('/:postId/like', PostController.likePost);
+router.post('/:postId/dislike', PostController.dislikePost);
+
 router.post('/:id/comment', PostController.addComment);
 router.delete('/:id/comment/:commentId', PostController.removeComment);
 

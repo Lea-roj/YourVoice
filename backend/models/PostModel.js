@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var PostSchema = new Schema({
   title: { type: String, required: true },
+
   content: { type: String, required: true },
   category: { type: String, required: true },
   userId: {
@@ -10,8 +11,18 @@ var PostSchema = new Schema({
     ref: 'users',
     required: true,
   },
-  upvotes: { type: Number, default: 0 },
+    upvotes: { type: Number, default: 0 },
   downvotes: { type: Number, default: 0 },
+  upvoteUsers: [
+    {
+      type: String, // Hranjenje uporabniških imen
+    },
+  ],
+  downvoteUsers: [
+    {
+      type: String, // Hranjenje uporabniških imen
+    },
+  ],
   comments: [
     {
       type: Schema.Types.ObjectId,

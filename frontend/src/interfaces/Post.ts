@@ -1,4 +1,6 @@
 export interface Post {
+  upvotes: number;
+  downvotes: number;
   _id: string;
   title: string;
   content: string;
