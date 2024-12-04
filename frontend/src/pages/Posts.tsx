@@ -19,6 +19,7 @@ const Posts: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Track selected post for editing
   const [searchQuery, setSearchQuery] = useState(''); // Search query state
+  const [authorQuery, setAuthorQuery] = useState(''); // Author query state
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
 
@@ -131,8 +132,10 @@ const Posts: React.FC = () => {
   }
 };
 
-  const filteredPosts = posts.filter((post) =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredPosts = posts.filter(
+      (post) =>
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          post.userId.username.toLowerCase().includes(authorQuery.toLowerCase())
   );
 
   return (
@@ -146,13 +149,19 @@ const Posts: React.FC = () => {
         </Button>
       )}
 
-    {/* Search Bar */}
-    <Input
-        placeholder="Išči po naslovu..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        mb={6}
-    />
+        {/* Search Bars */}
+        <Input
+            placeholder="Išči po naslovu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            mb={4}
+        />
+        <Input
+            placeholder="Išči po avtorju..."
+            value={authorQuery}
+            onChange={(e) => setAuthorQuery(e.target.value)}
+            mb={6}
+        />
 
       {loading ? (
         <Spinner size="xl" />
@@ -253,9 +262,9 @@ const Posts: React.FC = () => {
         </Box>
       </Box>
             </Box>
-          ))}
-        </Stack>
-      )}
+        ))}
+      </Stack>
+        )}
       <AddPostModal
         isOpen={isOpen}
         onClose={() => {
