@@ -6,6 +6,7 @@ import {
   Stack,
   Text,
   Spinner,
+  Input,
   useDisclosure,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
@@ -17,6 +18,8 @@ const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Track selected post for editing
+  const [searchQuery, setSearchQuery] = useState(''); // Search query state
+  const [authorQuery, setAuthorQuery] = useState(''); // Author query state
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
 
@@ -128,8 +131,12 @@ const Posts: React.FC = () => {
     console.error('Napaka pri nevšečkanju objave:', error);
   }
 };
-  
-  
+
+  const filteredPosts = posts.filter(
+      (post) =>
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          post.userId.username.toLowerCase().includes(authorQuery.toLowerCase())
+  );
 
   return (
     <Box p={6} maxW="container.lg" mx="auto">
@@ -141,15 +148,30 @@ const Posts: React.FC = () => {
           Dodaj novo objavo
         </Button>
       )}
+
+        {/* Search Bars */}
+        <Input
+            placeholder="Išči po naslovu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            mb={4}
+        />
+        <Input
+            placeholder="Išči po avtorju..."
+            value={authorQuery}
+            onChange={(e) => setAuthorQuery(e.target.value)}
+            mb={6}
+        />
+
       {loading ? (
         <Spinner size="xl" />
-      ) : posts.length === 0 ? (
+      ) : filteredPosts.length === 0 ? (
         <Text fontSize="lg" color="gray.500" textAlign="center" mt={8}>
           Trenutno ni nobenih objav.
         </Text>
       ) : (
         <Stack spacing={6}>
-          {posts.map((post) => (
+        {filteredPosts.map((post) => (
             <Box
               key={post._id}
               p={5}
@@ -240,9 +262,9 @@ const Posts: React.FC = () => {
         </Box>
       </Box>
             </Box>
-          ))}
-        </Stack>
-      )}
+        ))}
+      </Stack>
+        )}
       <AddPostModal
         isOpen={isOpen}
         onClose={() => {
