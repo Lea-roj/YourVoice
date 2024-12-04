@@ -1,19 +1,22 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { User } from '../interfaces/User'; // Adjust the path as needed
+import { User } from '../interfaces/User';
 
 interface ProtectedRouteProps {
   user: User | null;
-  element: React.ReactElement; // The route component to render
+  element: React.ReactElement;
+  isAdmin?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ user, element }) => {
-  // If the user is not authenticated, redirect to the login page
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ user, element, isAdmin }) => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // If the user is authenticated, render the requested element
+  if (isAdmin && user.role !== isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   return element;
 };
 

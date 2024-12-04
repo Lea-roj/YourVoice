@@ -1,21 +1,19 @@
 // Header.tsx
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { publicRoutes, protectedRoutes } from '../routes';
 import { UserContext } from '../userContext';
-
-interface RouteType {
-  name: string;
-  to: string;
-  visible: boolean;
-  element: React.ReactNode;
-}
 
 const Header: React.FC = () => {
   const { user } = useContext(UserContext); // Pridobimo stanje prijavljenega uporabnika iz konteksta
 
   // Nastavimo vidne poti glede na to ali je uporabnik prijavljen ali ne
-  const routesToShow = user ? protectedRoutes : publicRoutes;
+  const routesToShow = user
+      ? protectedRoutes.filter(
+          (route) =>
+              route.visible && (!route.role || user.role === route.role)
+      )
+      : publicRoutes.filter((route) => route.visible);
 
   return (
     <div className="container">
@@ -28,21 +26,18 @@ const Header: React.FC = () => {
         </Link>
 
         <ul className="nav nav-pills">
-          {/* Prikaz poti glede na prijavo */}
-          {routesToShow
-            .filter((route) => route.visible)
-            .map((route: RouteType) => (
+          {routesToShow.map((route) => (
               <li key={route.to} className="nav-item">
                 <NavLink
-                  to={route.to}
-                  className={({ isActive }) =>
-                    isActive ? 'nav-link active' : 'nav-link'
-                  }
+                    to={route.to}
+                    className={({ isActive }) =>
+                        isActive ? 'nav-link active' : 'nav-link'
+                    }
                 >
-                  {route.name}
+                  {route.icon || route.name} {/* Render the icon if available, fallback to name */}
                 </NavLink>
               </li>
-            ))}
+          ))}
         </ul>
       </header>
     </div>

@@ -6,4 +6,5 @@ export interface User {
   password: string;
   name: string;
   createdAt: string;
+  role: 'user' | 'moderator' | 'admin'; // Add the role property with its enum values
 }

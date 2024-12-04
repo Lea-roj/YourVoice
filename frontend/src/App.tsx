@@ -62,7 +62,11 @@ function App() {
               <Route
                 key={route.to}
                 path={route.to}
-                element={<ProtectedRoute user={user} element={route.element} />}
+                element={<ProtectedRoute
+                    user={user}
+                    element={route.element}
+                    isAdmin={route.role}
+                />}
               />
             ))}
           </Routes>
