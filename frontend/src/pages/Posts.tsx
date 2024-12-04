@@ -7,7 +7,7 @@ import {
   Text,
   Spinner,
   Input,
-  useDisclosure,
+  useDisclosure, Select,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import AddPostModal from '../components/AddPostModal';
@@ -20,6 +20,7 @@ const Posts: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Track selected post for editing
   const [searchQuery, setSearchQuery] = useState(''); // Search query state
   const [authorQuery, setAuthorQuery] = useState(''); // Author query state
+  const [sortOrder, setSortOrder] = useState('newest'); // Sorting state
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
 
@@ -83,11 +84,11 @@ const Posts: React.FC = () => {
         },
         body: JSON.stringify({ username: user?.username }), // Pošlje trenutno prijavljenega uporabnika
       });
-  
+
       if (!response.ok) {
         throw new Error('Napaka pri všečkanju objave');
       }
-  
+
       const updatedPost = await response.json();
       // setPosts((prevPosts) =>
       //   prevPosts.map((post) =>
@@ -138,6 +139,17 @@ const Posts: React.FC = () => {
           post.userId.username.toLowerCase().includes(authorQuery.toLowerCase())
   );
 
+  const formatDate = (date: string): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    return new Date(date).toLocaleDateString('sl-SI', options); // Slovenian locale
+  };
+
   return (
     <Box p={6} maxW="container.lg" mx="auto">
       <Heading as="h2" size="xl" mb={6} textAlign="center">
@@ -160,32 +172,60 @@ const Posts: React.FC = () => {
             placeholder="Išči po avtorju..."
             value={authorQuery}
             onChange={(e) => setAuthorQuery(e.target.value)}
-            mb={6}
+            mb={4}
         />
 
-      {loading ? (
-        <Spinner size="xl" />
-      ) : filteredPosts.length === 0 ? (
-        <Text fontSize="lg" color="gray.500" textAlign="center" mt={8}>
-          Trenutno ni nobenih objav.
-        </Text>
-      ) : (
-        <Stack spacing={6}>
-        {filteredPosts.map((post) => (
-            <Box
-              key={post._id}
-              p={5}
-              shadow="md"
-              borderWidth="1px"
-              borderRadius="lg"
-              _hover={{ bg: 'gray.50' }}
-            >
+        {/* Sorting Dropdown */}
+        <Select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            mb={6}
+        >
+          <option value="newest">Najnovejše</option>
+          <option value="oldest">Najstarejše</option>
+          <option value="mostLikes">Največ všečkov</option>
+          <option value="leastLikes">Najmanj všečkov</option>
+        </Select>
+
+        {loading ? (
+            <Spinner size="xl" />
+        ) : filteredPosts.length === 0 ? (
+            <Text fontSize="lg" color="gray.500" textAlign="center" mt={8}>
+              Trenutno ni nobenih objav.
+            </Text>
+        ) : (
+            <Stack spacing={6}>
+              {filteredPosts
+                  .sort((a, b) => {
+                    if (sortOrder === 'newest') {
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    } else if (sortOrder === 'oldest') {
+                      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+                    } else if (sortOrder === 'mostLikes') {
+                      return b.upvotes - a.upvotes;
+                    } else if (sortOrder === 'leastLikes') {
+                      return a.upvotes - b.upvotes;
+                    }
+                    return 0;
+                  })
+          .map((post) => (
+              <Box
+                  key={post._id}
+                  p={5}
+                  shadow="md"
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  _hover={{ bg: 'gray.50' }}
+              >
               <Heading fontSize="xl">{post.title}</Heading>
               <Text mt={2} fontSize="md" color="gray.600">
                 Kategorija: {post.category}
               </Text>
               <Text mt={2} fontSize="sm" color="gray.500">
                 Avtor: {post?.userId?.username || 'Neznan uporabnik'}
+              </Text>
+              <Text mt={2} fontSize="sm" color="gray.500">
+                Datum objave: {formatDate(post.createdAt)}
               </Text>
               <Link to={`/posts/${post._id}`}>
                 <Button colorScheme="teal" mt={4}>
@@ -208,9 +248,9 @@ const Posts: React.FC = () => {
                     Izbriši
                   </Button>
                 </Box>
-              )}
-              {/* Dodani gumbi za like in dislike */}
-              <Box
+            )}
+      {/* Like and Dislike Buttons */}
+      <Box
         mt={4}
         display="flex"
         justifyContent="flex-end"

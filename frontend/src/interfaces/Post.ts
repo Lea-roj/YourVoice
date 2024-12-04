@@ -5,7 +5,7 @@ export interface Post {
   title: string;
   content: string;
   category: string;
-  //userId: string;
+  createdAt: string;
   userId: {
     _id: string;
     username: string;
