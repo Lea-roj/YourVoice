@@ -34,6 +34,7 @@ interface Comment {
 }
 
 interface Post {
+  _id: any;
   title: string;
   content: string;
   category: string;
@@ -46,8 +47,10 @@ const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reportReason, setReportReason] = useState('');
   const [newComment, setNewComment] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isReportOpen, onOpen: onReportOpen, onClose: onReportClose } = useDisclosure();
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -76,6 +79,48 @@ const PostDetail: React.FC = () => {
   useEffect(() => {
     fetchPost(); // Inicialno naložite podatke o objavi
   }, [id]);
+
+  //!TODO to ne dela
+  const handleReportPost = async () => {
+    if (!user) {
+      alert('Prijavite se za prijavo objave.');
+      return;
+    }
+    if (!reportReason.trim()) {
+      alert('Razlog za prijavo ne sme biti prazen.');
+      return;
+    }
+
+    try {
+      console.log(post?._id)
+      console.log(user._id)
+      const response = await fetch(`http://localhost:3000/post/${post?._id}/report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          reportedBy: user._id,
+          reason: reportReason,
+        }),
+      });
+
+      console.log(response);
+      if (!response.ok) {
+        throw new Error('Napaka pri prijavi objave');
+      }
+
+      const result = await response.json();
+      alert('Objava uspešno prijavljena.');
+      console.log('Report result:', result);
+
+      setReportReason('');
+      onReportClose();
+    } catch (error) {
+      console.error('Error reporting post:', error);
+    }
+  };
 
   const handleCommentSubmit = () => {
     if (newComment.trim() === '') {
@@ -185,6 +230,37 @@ const PostDetail: React.FC = () => {
                 a: {color: 'blue.500', textDecoration: 'underline'},
               }}
           ></Box>
+          <Button colorScheme="red" mt={4} onClick={onReportOpen}>
+            Prijavi objavo
+          </Button>
+
+          <Modal isOpen={isReportOpen} onClose={onReportClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Prijavite objavo</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>
+                  Prosimo, navedite razlog za prijavo te objave:
+                </Text>
+                <Textarea
+                    placeholder="Razlog za prijavo..."
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    mt={4}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button colorScheme="red" onClick={handleReportPost}>
+                  Pošlji prijavo
+                </Button>
+                <Button onClick={onReportClose} ml={3}>
+                  Prekliči
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
 
           <Divider my={6} />
           <Heading as="h3" size="md" mb={4}>

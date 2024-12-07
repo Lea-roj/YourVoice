@@ -1,12 +1,12 @@
 // var dbAuth = require('./dbdata');
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
 //CORS - React demo
-var cors = require('cors');
+const cors = require('cors');
 
 // var mongoDB =
 //   'mongodb+srv://' +
@@ -23,12 +23,13 @@ mongoose.connect(mongoDB, {
 });
 
 mongoose.Promise = global.Promise;
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/UserRoutes');
-var postsRouter = require('./routes/PostRoutes');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/UserRoutes');
+const postsRouter = require('./routes/PostRoutes');
+const adminRouter = require('./routes/AdminRoutes')
 
 var app = express();
 
@@ -42,8 +43,8 @@ app.use(express.static(__dirname + "/public"));
 hbs.registerPartials(__dirname + "/views/partials");
 */
 const oneDay = 1000 * 60 * 60 * 24;
-var session = require('express-session');
-var MongoStore = require('connect-mongo');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 app.use(
   session({
     name: 'session',
@@ -55,7 +56,7 @@ app.use(
   })
 );
 
-var allowedOrigins = [
+const allowedOrigins = [
   'http://localhost:4200',
   'http://localhost:4100',
   'http://localhost:3000',
@@ -88,6 +89,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/post', postsRouter);
+app.use('/admin', adminRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -6,6 +6,14 @@ export interface Post {
   content: string;
   category: string;
   createdAt: string;
+  reports: Array<{
+    userId: {
+      _id: string;
+      username: string;
+    };
+    reportedAt: string;
+    reason: { type: String };
+  }>;
   userId: {
     _id: string;
     username: string;

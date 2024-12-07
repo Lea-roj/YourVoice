@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var PostSchema = new Schema({
+const PostSchema = new Schema({
   title: { type: String, required: true },
 
   content: { type: String, required: true },
@@ -27,6 +27,13 @@ var PostSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: 'comments',
+    },
+  ],
+  reports: [
+    {
+      userId: { type: Schema.Types.ObjectId, ref: 'users' },
+      reportedAt: { type: Date, default: Date.now },
+      reason: { type: String },
     },
   ],
   createdAt: { type: Date, default: Date.now },
