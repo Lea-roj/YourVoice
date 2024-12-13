@@ -39,7 +39,7 @@ function App() {
     <BrowserRouter>
       <UserContext.Provider value={{ user, setUserContext: updateUserData }}>
         <Header />
-        <main className="container">
+        <main className="container" style={{ paddingBottom: 100 }}>
           <Routes>
             {/* Stran Home je vedno dostopna */}
             <Route path="/" element={<Home />} />

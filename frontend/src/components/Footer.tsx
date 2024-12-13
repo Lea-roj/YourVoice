@@ -4,7 +4,10 @@ import '../styles.scss';
 const Footer: React.FC = () => {
   return (
     <div className="container">
-      <footer className="footer d-flex flex-wrap justify-content-between align-items-start py-3 my-4 border-top">
+      <footer className="footer d-flex flex-wrap justify-content-between align-items-start py-3 my-4 border-top container" style={{
+        position: 'absolute',
+        bottom: 0,
+      }}>
         <div className="col-md-6 d-flex flex-column align-items-start">
           <span className="footer-text mb-1">
             v0.0.1 Beta © 2024 by Oset, Ternik, Vučetić
