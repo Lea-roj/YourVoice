@@ -23,6 +23,7 @@ const Posts: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('newest'); // Sorting state
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
+  const [selectedCategory, setSelectedCategory] = useState('Splošno');
 
   const loadPosts = () => {
     setLoading(true);
@@ -133,11 +134,12 @@ const Posts: React.FC = () => {
   }
 };
 
-  const filteredPosts = posts.filter(
-      (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          post.userId.username.toLowerCase().includes(authorQuery.toLowerCase())
-  );
+const filteredPosts = posts.filter(
+  (post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    post.userId.username.toLowerCase().includes(authorQuery.toLowerCase()) &&
+    (selectedCategory === 'Splošno' || post.category === selectedCategory)
+);
 
   const formatDate = (date: string): string => {
     const options: Intl.DateTimeFormatOptions = {
@@ -155,6 +157,30 @@ const Posts: React.FC = () => {
       <Heading as="h2" size="xl" mb={6} textAlign="center">
         Forum - Objave
       </Heading>
+
+{/* Category Navigation Bar */}
+<Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      mb={6}
+      gap={4}
+      bg="gray.100"
+      p={3}
+      borderRadius="md"
+    >
+      {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((category) => (
+        <Button
+          key={category}
+          variant={selectedCategory === category ? 'solid' : 'outline'}
+          colorScheme="blue"
+          onClick={() => setSelectedCategory(category)}
+        >
+          {category}
+        </Button>
+      ))}
+    </Box>
+
       {user && (
         <Button onClick={onOpen} colorScheme="blue" mb={6}>
           Dodaj novo objavo

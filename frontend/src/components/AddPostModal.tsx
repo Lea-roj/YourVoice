@@ -14,6 +14,7 @@ import {
   Input,
   Textarea,
   useToast,
+  Select
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import { Post } from '../interfaces/Post';
@@ -115,6 +116,9 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
         <ModalBody pb={6}>
           <FormControl mb={4}>
             <FormLabel>Naslov</FormLabel>
+
+            
+
             <Input
               ref={titleInputRef} // Ref for focus
               placeholder="Vnesite naslov"
@@ -124,11 +128,28 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           </FormControl>
           <FormControl mb={4}>
             <FormLabel>Kategorija</FormLabel>
-            <Input
+
+            
+            {/* <Input
               placeholder="Vnesite kategorijo"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-            />
+            /> */}
+
+<Select
+  placeholder="Izberite kategorijo"
+  value={category}
+  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+  mb={2}
+>
+  {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</Select>
+
+
           </FormControl>
           <FormControl mb={4}>
             <FormLabel>Vsebina</FormLabel>
