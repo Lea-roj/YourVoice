@@ -249,32 +249,6 @@ module.exports = {
   },
 
   reportPost: async function (req, res) {
-    const { postId } = req.params;
-    const { reportedBy, reason } = req.body;
-
-    console.log(req.body)
-
-    try {
-      console.log('Request Body:', req.body);
-
-      const post = await PostModel.findById(postId);
-      if (!post) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-
-      console.log('Fetched Post:', post);
-      console.log('Reports Array Before:', post.reports);
-
-      post.reports.push({ userId: reportedBy, reportedAt: new Date(), reason });
-      console.log('Reports Array After:', post.reports);
-
-      await post.save();
-      console.log('Post successfully updated:', post);
-
-      res.status(200).json({ message: 'Report added successfully', post });
-    } catch (error) {
-      console.error('Error reporting post:', error);
-      res.status(500).json({ message: 'Error reporting post', error });
-    }
+    //TODO
   }
 };

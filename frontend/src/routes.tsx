@@ -7,7 +7,7 @@ import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Statistika from './pages/Statistika';
 import Sporocila from './pages/Sporocila';
-import Prijave from './pages/Prijave';
+// import Prijave from './pages/Prijave';
 import Obvestila  from './pages/Obvestila';
 import { FaBell } from 'react-icons/fa'; // Example: Importing an icon from react-icons
 
@@ -42,7 +42,7 @@ export const protectedRoutes: RouteType[] = [
   { name: 'Profil', to: '/profile', visible: true, element: <Profile /> },
   { name: 'Statistika', to: '/statistika', visible: true, element: <Statistika /> },
   { name: 'Sporočila', to: '/sporocila', visible: true, element: <Sporocila /> },
-  { name: 'Prijave', to: '/prijave', visible: true, role: 'admin', element: <Prijave /> },
+  // { name: 'Prijave', to: '/prijave', visible: true, role: 'admin', element: <Prijave /> },
   { name: 'Odjava', to: '/logout', visible: true, element: <Logout /> },
   { icon: <FaBell />, to: '/obvestila', visible: true, element: <Obvestila /> },
 

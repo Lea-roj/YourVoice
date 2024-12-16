@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+//! TODO: dodaj report
 const PostSchema = new Schema({
   title: { type: String, required: true },
 
@@ -29,13 +30,13 @@ const PostSchema = new Schema({
       ref: 'comments',
     },
   ],
-  reports: [
-    {
-      userId: { type: Schema.Types.ObjectId, ref: 'users' },
-      reportedAt: { type: Date, default: Date.now },
-      reason: { type: String },
-    },
-  ],
+  // reports: [
+  //   {
+  //     userId: { type: Schema.Types.ObjectId, ref: 'users' },
+  //     reportedAt: { type: Date, default: Date.now },
+  //     reason: { type: String },
+  //   },
+  // ],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

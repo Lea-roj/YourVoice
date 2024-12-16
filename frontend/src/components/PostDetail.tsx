@@ -80,46 +80,9 @@ const PostDetail: React.FC = () => {
     fetchPost(); // Inicialno naložite podatke o objavi
   }, [id]);
 
-  //!TODO to ne dela
+  //!TODO
   const handleReportPost = async () => {
-    if (!user) {
-      alert('Prijavite se za prijavo objave.');
-      return;
-    }
-    if (!reportReason.trim()) {
-      alert('Razlog za prijavo ne sme biti prazen.');
-      return;
-    }
 
-    try {
-      console.log(post?._id)
-      console.log(user._id)
-      const response = await fetch(`http://localhost:3000/post/${post?._id}/report`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          reportedBy: user._id,
-          reason: reportReason,
-        }),
-      });
-
-      console.log(response);
-      if (!response.ok) {
-        throw new Error('Napaka pri prijavi objave');
-      }
-
-      const result = await response.json();
-      alert('Objava uspešno prijavljena.');
-      console.log('Report result:', result);
-
-      setReportReason('');
-      onReportClose();
-    } catch (error) {
-      console.error('Error reporting post:', error);
-    }
   };
 
   const handleCommentSubmit = () => {
