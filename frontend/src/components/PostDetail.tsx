@@ -193,6 +193,8 @@ const PostDetail: React.FC = () => {
                 a: {color: 'blue.500', textDecoration: 'underline'},
               }}
           ></Box>
+
+          {/*TODO! PRIJAVI OBJAVO*/}
           <Button colorScheme="red" mt={4} onClick={onReportOpen}>
             Prijavi objavo
           </Button>
