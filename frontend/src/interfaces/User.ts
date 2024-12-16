@@ -6,5 +6,9 @@ export interface User {
   password: string;
   name: string;
   createdAt: string;
+  notifications: {
+    comment: boolean,
+    message: boolean
+  };
   role: 'user' | 'moderator' | 'admin'; // Add the role property with its enum values
 }

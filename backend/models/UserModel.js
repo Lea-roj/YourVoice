@@ -18,7 +18,11 @@ var UserSchema = new Schema({
     bio: { type: String, default: '', },
 	avatar: { type: String, default: ''},
     isBanned: { type: Boolean, default: false },
-	createdAt: { type: Date, default: Date.now }
+	createdAt: { type: Date, default: Date.now },
+	notifications: {
+		comment: {type: Boolean, default: false},
+		message: {type: Boolean, default: false}
+	}
 });
 
 

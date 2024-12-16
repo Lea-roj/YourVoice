@@ -208,5 +208,38 @@ module.exports = {
 
             return res.status(204).json();
         });
+    },
+
+    updateNotificationSettings: function (req, res) {
+        const id = req.params.id;
+
+        // Check if the user exists first
+        UserModel.findOne({ _id: id }, function (err, user) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting User',
+                    error: err
+                });
+            }
+
+            if (!user) {
+                return res.status(404).json({
+                    message: 'No such User'
+                });
+            }
+            console.log(req.body);
+            const options = req.body;
+            if (req.body.comment !== null){
+                UserModel.updateOne({ _id: id }, options, { runValidators: true }, function (err, result) {
+                    if (err) {
+                        return res.status(500).json({
+                            message: 'Error when updating User.',
+                            error: err
+                        });
+                    }
+                    return res.status(200).json({ message: 'User updated successfully' });
+                });
+            }
+        })
     }
 };

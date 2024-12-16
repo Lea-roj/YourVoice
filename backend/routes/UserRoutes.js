@@ -25,6 +25,8 @@ router.post('/login', UserController.login);
  */
 router.put('/:id', UserController.update);
 
+router.put('/updateNotif/:id', UserController.updateNotificationSettings);
+
 /*
  * DELETE
  */
