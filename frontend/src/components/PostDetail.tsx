@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+
 import {
   Box,
   Heading,
@@ -31,6 +33,8 @@ interface Comment {
   content: string;
   createdAt: string;
   userId: User;
+  parentId?: string; // parent comment
+  children?: Comment[]; // Nested comments
 }
 
 interface Post {
@@ -50,6 +54,121 @@ const PostDetail: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [nestedComments, setNestedComments] = useState<Comment[]>([]);
+
+
+  const handleReply = (parentId: string, content: string) => {
+    if (!user) {
+      alert('Prijavite se za dodajanje komentarja.');
+      return;
+    }
+
+    if (content.trim() === '') {
+      alert('Komentar ne sme biti prazen.');
+      return;
+    }
+
+    fetch(`http://localhost:3000/post/${id}/comment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content,
+        userId: user._id,
+        postId: id, // Ensure postId is passed
+        parentId, // Associate reply with the parent comment
+      }),
+    })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Napaka pri dodajanju komentarja');
+          }
+          return response.json();
+        })
+        .then(() => {
+          fetchPost(); // Reload comments after a successful reply
+        })
+        .catch((error) => {
+          console.error('Napaka pri dodajanju komentarja:', error);
+        });
+  };
+
+
+
+  const CommentItem: React.FC<{
+    comment: Comment;
+    handleReply: (commentId: string, content: string) => void;
+    handleDelete: (commentId: string) => void;
+  }> = ({ comment, handleReply, handleDelete }) => {
+    const [showReplyInput, setShowReplyInput] = useState(false);
+    const [replyContent, setReplyContent] = useState('');
+    const [isOpen, setIsOpen] = useState(true);
+
+    const toggleReplyInput = () => setShowReplyInput((prev) => !prev);
+    const toggleChildren = () => setIsOpen((prev) => !prev);
+
+    const submitReply = () => {
+      if (replyContent.trim() !== '') {
+        handleReply(comment._id, replyContent);
+        setReplyContent('');
+        setShowReplyInput(false);
+      }
+    };
+
+    return (
+        <Box p={4} borderWidth="1px" borderRadius="md" w="full" ml={comment.parentId ? 4 : 0}>
+          <Flex justify="space-between" align="center">
+            <Text fontSize="sm" color="gray.500">
+              {comment.userId.username} - {new Date(comment.createdAt).toLocaleString()}
+            </Text>
+            <Flex>
+              <Button size="sm" colorScheme="red" onClick={() => handleDelete(comment._id)} mr={2}>
+                Delete
+              </Button>
+              {comment.children && comment.children.length > 0 && (
+                  <Button size="sm" variant="ghost" onClick={toggleChildren}>
+                    {isOpen ? <FaChevronDown /> : <FaChevronRight />}
+                  </Button>
+              )}
+            </Flex>
+          </Flex>
+
+          <Text mt={2}>{comment.content}</Text>
+
+          <Button size="sm" colorScheme="teal" mt={2} onClick={toggleReplyInput}>
+            {showReplyInput ? 'Cancel' : 'Reply'}
+          </Button>
+
+          {showReplyInput && (
+              <Box mt={2}>
+                <Textarea
+                    placeholder="Enter your reply..."
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                />
+                <Button size="sm" colorScheme="teal" mt={2} onClick={submitReply}>
+                  Post
+                </Button>
+              </Box>
+          )}
+
+          {isOpen && comment.children && comment.children.length > 0 && (
+              <VStack spacing={4} align="start" mt={4}>
+                {comment.children.map((child) => (
+                    <CommentItem
+                        key={child._id}
+                        comment={child}
+                        handleReply={handleReply}
+                        handleDelete={handleDelete}
+                    />
+                ))}
+              </VStack>
+          )}
+        </Box>
+    );
+  };
 
   // Ustvarite ref za textarea
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -57,25 +176,61 @@ const PostDetail: React.FC = () => {
   const fetchPost = () => {
     setLoading(true);
     fetch(`http://localhost:3000/post/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setPost(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Napaka pri pridobivanju objave:', error);
-        setLoading(false);
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setPost(data); // Ensure `comments` is a flat list
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Napaka pri pridobivanju objave:', error);
+          setLoading(false);
+        });
   };
+
+
+  const nestComments = (comments: Comment[]): Comment[] => {
+    const commentMap: Record<string, Comment & { children: Comment[] }> = {};
+
+    // Initialize map with each comment and an empty `children` array
+    comments.forEach((comment) => {
+      commentMap[comment._id] = { ...comment, children: [] };
+    });
+
+    const nestedComments: Comment[] = [];
+
+    // Build the tree by associating children with their parentId
+    comments.forEach((comment) => {
+      if (comment.parentId) {
+        const parent = commentMap[comment.parentId];
+        if (parent) {
+          parent.children.push(commentMap[comment._id]);
+        }
+      } else {
+        // Top-level comment (no parentId)
+        nestedComments.push(commentMap[comment._id]);
+      }
+    });
+
+    return nestedComments;
+  };
+
+
 
   useEffect(() => {
     fetchPost(); // Inicialno naložite podatke o objavi
   }, [id]);
+
+  useEffect(() => {
+    if (post?.comments) {
+      const nested = nestComments(post.comments);
+      setNestedComments(nested);
+    }
+  }, [post?.comments]);
 
   const handleCommentSubmit = () => {
     if (newComment.trim() === '') {
@@ -96,23 +251,27 @@ const PostDetail: React.FC = () => {
       body: JSON.stringify({
         content: newComment,
         userId: user._id,
+        postId: id, // Ensure postId is passed
+        parentId: replyTo || null, // Handle reply-to logic
       }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Napaka pri dodajanju komentarja');
-        }
-        return response.json();
-      })
-      .then(() => {
-        setNewComment(''); // Počistite vnos
-        onClose();
-        fetchPost(); // Ponovno naložite objavo, da pridobite najnovejše komentarje
-      })
-      .catch((error) => {
-        console.error('Napaka pri dodajanju komentarja:', error);
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Napaka pri dodajanju komentarja');
+          }
+          return response.json();
+        })
+        .then(() => {
+          setNewComment('');
+          onClose();
+          setReplyTo(null); // Reset replyTo after submitting
+          fetchPost(); // Reload comments
+        })
+        .catch((error) => {
+          console.error('Napaka pri dodajanju komentarja:', error);
+        });
   };
+
 
   const handleCommentDelete = (commentId: string) => {
     if (!user) {
@@ -196,39 +355,17 @@ const PostDetail: React.FC = () => {
           </Button>
 
           {post.comments && post.comments.length > 0 ? (
-            <VStack spacing={4} align="start">
-              {post.comments
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map((comment) => (
-                  <Box
-                    key={comment._id}
-                    p={4}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    w="full"
-                  >
-                    <Text fontSize="sm" color="gray.500">
-                      {comment.userId.username} -{' '}
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </Text>
-                    <Text>{comment.content}</Text>
-                    {user?._id === comment.userId._id && (
-                      <Button
-                        colorScheme="red"
-                        size="sm"
-                        mt={2}
-                        onClick={() => handleCommentDelete(comment._id)}
-                      >
-                        Izbriši
-                      </Button>
-                    )}
-                  </Box>
+              <VStack spacing={4} align="start">
+                {nestedComments.map((comment) => (
+                    <CommentItem
+                        key={comment._id}
+                        comment={comment}
+                        handleReply={handleReply}
+                        handleDelete={handleCommentDelete}
+                    />
                 ))}
-            </VStack>
+              </VStack>
+
           ) : (
             <Text color="gray.500">
               Ni komentarjev. Bodite prvi, ki komentirate!
@@ -245,13 +382,19 @@ const PostDetail: React.FC = () => {
               <ModalHeader>Dodaj komentar</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
+                {replyTo && (
+                    <Text fontSize="sm" mb={2} color="gray.500">
+                      Odgovarjate na komentar
+                    </Text>
+                )}
                 <Textarea
-                  ref={textareaRef} // Povezava referenc
-                  placeholder="Vnesite svoj komentar..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                    ref={textareaRef}
+                    placeholder="Vnesite svoj komentar..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
                 />
               </ModalBody>
+
               <ModalFooter>
                 <Button colorScheme="teal" onClick={handleCommentSubmit}>
                   Objavi
