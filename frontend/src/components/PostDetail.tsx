@@ -17,9 +17,12 @@ import {
   ModalBody,
   ModalFooter,
   Textarea,
-  useDisclosure,
+  useDisclosure, Icon, IconButton,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
+import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
+import { FaTrashAlt } from 'react-icons/fa';
+
 
 interface User {
   username: string;
@@ -49,6 +52,7 @@ const PostDetail: React.FC = () => {
   const [newComment, setNewComment] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const navigate = useNavigate();
 
   // Ustvarite ref za textarea
@@ -195,44 +199,41 @@ const PostDetail: React.FC = () => {
             Dodaj komentar
           </Button>
 
+          <Flex align="center" gap={2} justifyContent="flex-end" mb="20px">
+            <Button leftIcon={<Icon as={AiOutlineArrowDown} />} size="sm" colorScheme={sortOrder === 'newest' ? 'teal' : 'gray'} onClick={() => setSortOrder('newest')}>
+              Najnovejši
+            </Button>
+            <Button leftIcon={<Icon as={AiOutlineArrowUp} />} size="sm" colorScheme={sortOrder === 'oldest' ? 'teal' : 'gray'} onClick={() => setSortOrder('oldest')}>
+              Najstarejši
+            </Button>
+          </Flex>
+
           {post.comments && post.comments.length > 0 ? (
             <VStack spacing={4} align="start">
               {post.comments
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
+                  .sort((a, b) => {
+                  if (sortOrder === 'newest') {
+                    return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                } else {
+                    return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                }
+                })
                 .map((comment) => (
-                  <Box
-                    key={comment._id}
-                    p={4}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    w="full"
-                  >
-                    <Text fontSize="sm" color="gray.500">
-                      {comment.userId.username} -{' '}
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </Text>
-                    <Text>{comment.content}</Text>
-                    {user?._id === comment.userId._id && (
-                      <Button
-                        colorScheme="red"
-                        size="sm"
-                        mt={2}
-                        onClick={() => handleCommentDelete(comment._id)}
-                      >
-                        Izbriši
-                      </Button>
-                    )}
-                  </Box>
+                    <Box key={comment._id} p={4} borderWidth="1px" borderRadius="md" w="full">
+                      <Flex justify="space-between" align="center">
+                        <Text fontSize="sm" color="gray.500">
+                          {comment.userId.username} - {new Date(comment.createdAt).toLocaleString()}
+                        </Text>
+                        {user?._id && comment.userId?._id === user._id && (
+                            <IconButton icon={<FaTrashAlt />} colorScheme="red" size="sm" aria-label="Izbriši komentar" onClick={() => handleCommentDelete(comment._id)}/>
+                        )}
+                      </Flex>
+                      <Text mt={2}>{comment.content}</Text>
+                    </Box>
                 ))}
             </VStack>
           ) : (
-            <Text color="gray.500">
-              Ni komentarjev. Bodite prvi, ki komentirate!
-            </Text>
+            <Text color="gray.500">Ni komentarjev. Bodite prvi, ki komentirate!</Text>
           )}
 
           <Modal
