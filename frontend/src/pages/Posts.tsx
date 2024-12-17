@@ -26,6 +26,7 @@ const Posts: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
   const [selectedCategory, setSelectedCategory] = useState('Splošno');
+  const [draftPost, setDraftPost] = useState<Post | null>(null);
 
   const loadPosts = () => {
     setLoading(true);
@@ -363,13 +364,15 @@ const filteredPosts = posts.filter(
       </Stack>
         )}
       <AddPostModal
-        isOpen={isOpen}
-        onClose={() => {
-          onClose();
-          setSelectedPost(null); // Reset selected post when modal closes
-        }}
-        onPostAdded={handlePostAdded}
-        post={selectedPost} // Pass selected post to the modal
+          isOpen={isOpen}
+          onClose={() => {
+            onClose();
+            setSelectedPost(null);
+          }}
+          onPostAdded={handlePostAdded}
+          post={selectedPost}
+          onSaveDraft={setDraftPost}
+          draftPost={draftPost}
       />
     </Box>
   );
