@@ -118,6 +118,19 @@ const PostDetail: React.FC = () => {
       });
   };
 
+  const formatCommentDate = (createdAt: string): string => {
+    const now = new Date();
+    const commentTime = new Date(createdAt);
+    const diffInMinutes = Math.floor((now.getTime() - commentTime.getTime()) / (1000 * 60));
+
+    if (diffInMinutes < 60) {
+      return `pred ${diffInMinutes} min`;
+    } else {
+      return commentTime.toLocaleString(); // Default full date display
+    }
+  };
+
+
   const handleCommentDelete = (commentId: string) => {
     if (!user) {
       alert('Prijavite se za brisanje komentarja.');
@@ -222,7 +235,7 @@ const PostDetail: React.FC = () => {
                     <Box key={comment._id} p={4} borderWidth="1px" borderRadius="md" w="full">
                       <Flex justify="space-between" align="center">
                         <Text fontSize="sm" color="gray.500">
-                          {comment.userId.username} - {new Date(comment.createdAt).toLocaleString()}
+                          {comment.userId.username} - {formatCommentDate(comment.createdAt)}
                         </Text>
                         {user?._id && comment.userId?._id === user._id && (
                             <IconButton icon={<FaTrashAlt />} colorScheme="red" size="sm" aria-label="Izbriši komentar" onClick={() => handleCommentDelete(comment._id)}/>
