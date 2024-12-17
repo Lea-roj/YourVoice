@@ -26,13 +26,12 @@ interface AddPostModalProps {
   onClose: () => void;
   onPostAdded: () => void;
   post: Post | null;
+  onSaveDraft: (draft: any) => void;
+  draftPost: Post | null;
 }
 
 const AddPostModal: React.FC<AddPostModalProps> = ({
-  isOpen,
-  onClose,
-  onPostAdded,
-  post,
+  isOpen, onClose, onPostAdded, post, onSaveDraft, draftPost,
 }) => {
   const { user } = useContext(UserContext); // Get the currently logged-in user
   const [title, setTitle] = useState('');
@@ -41,7 +40,6 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   const toast = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Populate fields when post is provided (for editing)
   useEffect(() => {
     if (post) {
       setTitle(post.title);
@@ -53,6 +51,29 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
       setCategory('');
     }
   }, [post]);
+
+  useEffect(() => {
+    if (draftPost) {
+      setTitle(draftPost.title || '');
+      setContent(draftPost.content || '');
+    }
+  }, [draftPost]);
+
+  const handleSaveDraft = () => {
+    const draft = {
+      title,
+      content,
+    };
+    onSaveDraft(draft as Post);
+    onClose();
+  };
+
+  const handleModalClose = () => {
+    setTitle('');
+    setContent('');
+    setCategory('');
+    onClose(); // Close the modal
+  };
 
   const handleSubmit = () => {
     if (!user) {
@@ -101,85 +122,86 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           status: 'error',
         });
       });
+    onSaveDraft(null);
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      initialFocusRef={titleInputRef} // Set focus on the first input field
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{post ? 'Uredi objavo' : 'Dodaj novo objavo'}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <FormControl mb={4}>
-            <FormLabel>Naslov</FormLabel>
+      <Modal
+          isOpen={isOpen}
+          onClose={() => {
+            onClose();
+            handleSaveDraft();
+          }}
+          initialFocusRef={titleInputRef}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{post ? 'Uredi objavo' : 'Dodaj novo objavo'}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            {/* Naslov */}
+            <FormControl mb={4}>
+              <FormLabel>Naslov</FormLabel>
+              <Input
+                  ref={titleInputRef}
+                  placeholder="Vnesite naslov"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+              />
+            </FormControl>
 
-            
+            {/* Kategorija */}
+            <FormControl mb={4}>
+              <FormLabel>Kategorija</FormLabel>
+              <Select
+                  placeholder="Izberite kategorijo"
+                  value={category}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+                  mb={2}
+              >
+                {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                ))}
+              </Select>
+            </FormControl>
 
-            <Input
-              ref={titleInputRef} // Ref for focus
-              placeholder="Vnesite naslov"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </FormControl>
-          <FormControl mb={4}>
-            <FormLabel>Kategorija</FormLabel>
+            {/* Vsebina */}
+            <FormControl mb={4}>
+              <FormLabel>Vsebina</FormLabel>
+              <ReactQuill
+                  theme="snow"
+                  value={content}
+                  onChange={setContent}
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, 3, false] }],
+                      ['bold', 'italic', 'underline'],
+                      [{ color: [] }, { background: [] }],
+                      [{ list: 'ordered' }, { list: 'bullet' }],
+                      [{ align: [] }],
+                      ['link'],
+                      ['clean'],
+                    ],
+                  }}
+                  placeholder="Vnesite vsebino"
+              />
+            </FormControl>
+          </ModalBody>
 
-            
-            {/* <Input
-              placeholder="Vnesite kategorijo"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            /> */}
-
-<Select
-  placeholder="Izberite kategorijo"
-  value={category}
-  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
-  mb={2}
->
-  {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((cat) => (
-    <option key={cat} value={cat}>
-      {cat}
-    </option>
-  ))}
-</Select>
-
-
-          </FormControl>
-          <FormControl mb={4}>
-            <FormLabel>Vsebina</FormLabel>
-            <ReactQuill
-                theme="snow"
-                value={content}
-                onChange={setContent}
-                modules={{
-                  toolbar: [
-                    [{ header: [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ color: [] }, { background: [] }],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    [{ align: [] }],
-                    ['link'],
-                    ['clean'],
-                  ],
-                }}
-                placeholder="Vnesite vsebino"
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" onClick={handleSubmit} mr={3}>
-            {post ? 'Shrani' : 'Dodaj'}
-          </Button>
-          <Button onClick={onClose}>Prekliči</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          {/* Footer Buttons */}
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handleSubmit} mr={3}>
+              {post ? 'Shrani' : 'Dodaj'}
+            </Button>
+            <Button colorScheme="gray" onClick={handleSaveDraft} mr={3}>
+              Shrani kot osnutek
+            </Button>
+            <Button onClick={handleModalClose}>Prekliči</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
   );
 };
 
