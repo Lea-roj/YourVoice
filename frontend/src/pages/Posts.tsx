@@ -13,6 +13,8 @@ import { UserContext } from '../userContext';
 import AddPostModal from '../components/AddPostModal';
 import { Post } from '../interfaces/Post';
 import { Link } from 'react-router-dom';
+import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
+
 
 const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -23,6 +25,8 @@ const Posts: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('newest'); // Sorting state
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
+  const [selectedCategory, setSelectedCategory] = useState('Splošno');
+  const [draftPost, setDraftPost] = useState<Post | null>(null);
 
   const loadPosts = () => {
     setLoading(true);
@@ -41,6 +45,28 @@ const Posts: React.FC = () => {
         console.error('Napaka pri pridobivanju objav:', error);
         setLoading(false);
       });
+  };
+
+  const calculateRating = (upvotes: number, downvotes: number): number => {
+    const total = upvotes + downvotes;
+    if (total === 0) return 0;
+    return Math.round((upvotes / total) * 5);
+  };
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+          <span key={i}>
+        {i <= rating ? (
+            <AiFillStar color="#FFD700" size={20} /> // Filled Star
+        ) : (
+            <AiOutlineStar color="#D3D3D3" size={20} /> // Empty Star
+        )}
+      </span>
+      );
+    }
+    return stars;
   };
 
   useEffect(() => {
@@ -133,11 +159,12 @@ const Posts: React.FC = () => {
   }
 };
 
-  const filteredPosts = posts.filter(
-      (post) =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          post.userId.username.toLowerCase().includes(authorQuery.toLowerCase())
-  );
+const filteredPosts = posts.filter(
+  (post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    post.userId.username.toLowerCase().includes(authorQuery.toLowerCase()) &&
+    (selectedCategory === 'Splošno' || post.category === selectedCategory)
+);
 
   const formatDate = (date: string): string => {
     const options: Intl.DateTimeFormatOptions = {
@@ -155,6 +182,30 @@ const Posts: React.FC = () => {
       <Heading as="h2" size="xl" mb={6} textAlign="center">
         Forum - Objave
       </Heading>
+
+{/* Category Navigation Bar */}
+<Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      mb={6}
+      gap={4}
+      bg="gray.100"
+      p={3}
+      borderRadius="md"
+    >
+      {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((category) => (
+        <Button
+          key={category}
+          variant={selectedCategory === category ? 'solid' : 'outline'}
+          colorScheme="blue"
+          onClick={() => setSelectedCategory(category)}
+        >
+          {category}
+        </Button>
+      ))}
+    </Box>
+
       {user && (
         <Button onClick={onOpen} colorScheme="blue" mb={6}>
           Dodaj novo objavo
@@ -227,6 +278,13 @@ const Posts: React.FC = () => {
               <Text mt={2} fontSize="sm" color="gray.500">
                 Datum objave: {formatDate(post.createdAt)}
               </Text>
+                <Box mt={2} display="flex" alignItems="center">
+                  <Text fontSize="sm" mr={2}>
+                    Ocena:
+                  </Text>
+                  {renderStars(calculateRating(post.upvotes, post.downvotes))}
+                </Box>
+
               <Link to={`/posts/${post._id}`}>
                 <Button colorScheme="teal" mt={4}>
                   Preberi več
@@ -306,13 +364,15 @@ const Posts: React.FC = () => {
       </Stack>
         )}
       <AddPostModal
-        isOpen={isOpen}
-        onClose={() => {
-          onClose();
-          setSelectedPost(null); // Reset selected post when modal closes
-        }}
-        onPostAdded={handlePostAdded}
-        post={selectedPost} // Pass selected post to the modal
+          isOpen={isOpen}
+          onClose={() => {
+            onClose();
+            setSelectedPost(null);
+          }}
+          onPostAdded={handlePostAdded}
+          post={selectedPost}
+          onSaveDraft={setDraftPost}
+          draftPost={draftPost}
       />
     </Box>
   );
