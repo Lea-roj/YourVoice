@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var PostController = require('../controllers/PostController.js');
+var multer = require('multer');
+var upload = multer({dest: 'public/images/'});
 
 function requiresLogin(req, res, next){
     if(req.session && req.session.userId){
@@ -16,9 +18,9 @@ router.get('/', PostController.list);
 
 router.get('/:id', PostController.show);
 
-router.post('/', PostController.create);
+router.post('/',upload.single('image'), PostController.create);
 
-router.put('/:id', PostController.update);
+router.put('/:id',upload.single('image'), PostController.update);
 
 router.delete('/:id', PostController.remove);
 

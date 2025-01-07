@@ -39,6 +39,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   const [category, setCategory] = useState('');
   const toast = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null); // Poskrbi, da `file` sprejema `File | null`
 
   useEffect(() => {
     if (post) {
@@ -72,6 +73,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
     setTitle('');
     setContent('');
     setCategory('');
+    setFile(null);
     onClose(); // Close the modal
   };
 
@@ -85,16 +87,17 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
       ? `http://localhost:3000/post/${post._id}`
       : 'http://localhost:3000/post';
     const method = post ? 'PUT' : 'POST';
-
+    const formData = new FormData();
+formData.append("title", title);
+formData.append("content", content);
+formData.append("category", category);
+formData.append("userId", user._id);
+if (file) {
+  formData.append("image", file); // Dodamo datoteko
+}
     fetch(url, {
       method: method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        content,
-        category,
-        userId: user._id, // Include userId
-      }),
+      body: formData,
     })
       .then((response) => {
         if (!response.ok) {
@@ -113,6 +116,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
         setContent('');
         setCategory('');
         onPostAdded();
+        setFile(null);
         onClose();
       })
       .catch((error) => {
@@ -166,6 +170,23 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
                 ))}
               </Select>
             </FormControl>
+
+            <FormControl mb={4}>
+  <FormLabel htmlFor="file">Izberi sliko</FormLabel>
+  <Input 
+    type="file" 
+    className="form-control" 
+    id="file" 
+    accept="image/*" // Dovoli samo slike
+    onChange={(e) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) {
+        setFile(selectedFile);
+      }
+    }} 
+  />
+</FormControl>
+
 
             {/* Vsebina */}
             <FormControl mb={4}>

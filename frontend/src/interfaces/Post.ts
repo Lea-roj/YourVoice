@@ -1,6 +1,7 @@
 export interface Post {
   upvotes: number;
   downvotes: number;
+  photoPath: string;
   _id: string;
   title: string;
   content: string;

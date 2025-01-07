@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var PostSchema = new Schema({
   title: { type: String, required: true },
+  photoPath: { type: String, required: false, default: null },
 
   content: { type: String, required: true },
   category: { type: String, required: true },

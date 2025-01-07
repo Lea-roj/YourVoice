@@ -7,7 +7,7 @@ import {
   Text,
   Spinner,
   Input,
-  useDisclosure, Select,
+  useDisclosure, Select, Image
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import AddPostModal from '../components/AddPostModal';
@@ -38,6 +38,7 @@ const Posts: React.FC = () => {
         return response.json();
       })
       .then((data) => {
+        console.log(data);
         setPosts(data.reverse());
         setLoading(false);
       })
@@ -278,6 +279,20 @@ const filteredPosts = posts.filter(
               <Text mt={2} fontSize="sm" color="gray.500">
                 Datum objave: {formatDate(post.createdAt)}
               </Text>
+
+              {post.photoPath && (
+            <Box mt={4}>
+              <Image
+                src={"http://localhost:3000/"+post.photoPath}  // Preveri, da `imagePath` vsebuje pravilno pot do slike
+                alt="Post Image"
+                boxSize="200px"  // Nastavi želeno velikost
+                objectFit="cover"  // Oblikuj sliko za ustrezno obrezovanje
+                borderRadius="md"
+              />
+            </Box>
+          )}
+
+
                 <Box mt={2} display="flex" alignItems="center">
                   <Text fontSize="sm" mr={2}>
                     Ocena:

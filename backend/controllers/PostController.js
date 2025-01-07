@@ -52,11 +52,16 @@ module.exports = {
   },
 
   create: function (req, res) {
+    console.log(req.body.title);
+    console.log(req.body);
+    console.log("AAAA".req);
+
     var newPost = new PostModel({
       title: req.body.title,
       content: req.body.content,
       category: req.body.category,
       userId: req.body.userId,
+      photoPath : req.file?.filename ? "/images/"+req.file.filename : null,
     });
 
     newPost.save(function (err, Post) {
@@ -90,7 +95,7 @@ module.exports = {
       post.title = req.body.title ? req.body.title : post.title;
       post.content = req.body.content ? req.body.content : post.content;
       post.category = req.body.category ? req.body.category : post.category;
-
+      post.photoPath = req.file.filename ? "/images/"+req.file.filename : post.category;
       post.save(function (err, post) {
         if (err) {
           return res.status(500).json({

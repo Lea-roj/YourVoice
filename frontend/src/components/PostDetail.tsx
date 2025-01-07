@@ -17,7 +17,7 @@ import {
   ModalBody,
   ModalFooter,
   Textarea,
-  useDisclosure, Icon, IconButton,
+  useDisclosure, Icon, IconButton, Image
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
@@ -38,6 +38,7 @@ interface Comment {
 
 interface Post {
   title: string;
+  photoPath: string;
   content: string;
   category: string;
   createdAt: string;
@@ -202,6 +203,17 @@ const PostDetail: React.FC = () => {
                 a: {color: 'blue.500', textDecoration: 'underline'},
               }}
           ></Box>
+          {post.photoPath && (
+                      <Box mt={4}>
+                        <Image
+                          src={"http://localhost:3000/"+post.photoPath}  // Preveri, da `imagePath` vsebuje pravilno pot do slike
+                          alt="Post Image"
+                          boxSize="200px"  // Nastavi želeno velikost
+                          objectFit="cover"  // Oblikuj sliko za ustrezno obrezovanje
+                          borderRadius="md"
+                        />
+                      </Box>
+                    )}
 
           <Divider my={6} />
           <Heading as="h3" size="md" mb={4}>
