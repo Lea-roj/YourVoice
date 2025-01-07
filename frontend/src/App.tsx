@@ -9,7 +9,18 @@ import Footer from './components/Footer';
 import { UserContext } from './userContext';
 import Home from './pages/Home'; // Potrdite pravilno pot
 import Posts from './pages/Posts'; // Dodajte direktni import za Posts
+import LearnMore from "./pages/LearnMore";
 import PostDetail from './components/PostDetail';
+import { ChakraProvider, ColorModeScript, extendTheme } from '@chakra-ui/react';
+import { ColorModeSwitcher } from './components/ColorModeSwitcher'; // A toggle button for color mode
+
+// Chakra UI theme setup
+const config = {
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+};
+
+const theme = extendTheme({ config });
 
 function App() {
   const [user, setUser] = useState<User | null>(
@@ -36,44 +47,48 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <UserContext.Provider value={{ user, setUserContext: updateUserData }}>
-        <Header />
-        <main className="container" style={{ paddingBottom: 100 }}>
-          <Routes>
-            {/* Stran Home je vedno dostopna */}
-            <Route path="/" element={<Home />} />
+      <ChakraProvider theme={theme}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+        <BrowserRouter>
+          <UserContext.Provider value={{ user, setUserContext: updateUserData }}>
+            <Header />
+            <main className="container" style={{ paddingBottom: 100 }}>
+              <Routes>
+                {/* Stran Home je vedno dostopna */}
+                <Route path="/" element={<Home />} />
 
-            {/* Javni Routes - stran Objave vključena za vse */}
-            <Route path="/posts" element={<Posts />} />
-            <Route path="/posts/:id" element={<PostDetail />} />
-            {publicRoutes
-              .filter((route) => route.to !== '/' && route.to !== '/posts') // Home in Objave izvzeti
-              .map((route) => (
-                <Route
-                  key={route.to}
-                  path={route.to}
-                  element={user ? <Navigate to="/" replace /> : route.element}
-                />
-              ))}
+                {/* Javni Routes - stran Objave vključena za vse */}
+                <Route path="/posts" element={<Posts />} />
+                <Route path="/posts/:id" element={<PostDetail />} />
+                <Route path="/about" element={<LearnMore />} />
+                {publicRoutes
+                    .filter((route) => route.to !== '/' && route.to !== '/posts') // Home in Objave izvzeti
+                    .map((route) => (
+                        <Route
+                            key={route.to}
+                            path={route.to}
+                            element={user ? <Navigate to="/" replace /> : route.element}
+                        />
+                    ))}
 
-            {/* Zaščiteni Routes - samo za prijavljene */}
-            {protectedRoutes.map((route) => (
-              <Route
-                key={route.to}
-                path={route.to}
-                element={<ProtectedRoute
-                    user={user}
-                    element={route.element}
-                    isAdmin={route.role}
-                />}
-              />
-            ))}
-          </Routes>
-        </main>
-      </UserContext.Provider>
-      <Footer />
-    </BrowserRouter>
+                {/* Zaščiteni Routes - samo za prijavljene */}
+                {protectedRoutes.map((route) => (
+                    <Route
+                        key={route.to}
+                        path={route.to}
+                        element={<ProtectedRoute
+                            user={user}
+                            element={route.element}
+                            isAdmin={route.role}
+                        />}
+                    />
+                ))}
+              </Routes>
+            </main>
+          </UserContext.Provider>
+          <Footer />
+        </BrowserRouter>
+      </ChakraProvider>
   );
 }
 

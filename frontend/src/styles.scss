@@ -1,24 +1,32 @@
 .footer-text {
-  font-family: Arial, sans-serif; /* Uporaba privzetega fonta brez dodatnih knjižnic */
-  color: #555; /* Siva barva besedila */
-  font-size: 14px; /* Manjša velikost besedila */
+  font-family: Arial, sans-serif;
+  font-size: 14px;
 }
 
-.footer-text:first-child {
-  font-weight: bold; /* Poudarjeno besedilo za prvi span */
-  color: #000; /* Temnejša barva za poudarjeno besedilo */
-}
-
-.footer-text:last-child {
-  font-weight: normal; /* Normalna teža za drugi span */
-  color: #777; /* Svetlejša barva za drugi span */
+.footer-text.mb-1 {
+  font-weight: bold;
 }
 
 .nav a {
-  color: #007bff; /* Barva povezav */
-  text-decoration: none; /* Brez podčrtavanja povezav */
+  text-decoration: none;
 }
 
 .nav a:hover {
-  text-decoration: underline; /* Podčrtaj povezave ob hoverju */
+  text-decoration: underline;
+}
+
+.react-quill {
+  background-color: rgba(255, 255, 255, 0.41);
+  color: black;
+  border-radius: 8px;
+}
+
+.react-quill .ql-toolbar {
+  background-color: rgba(255, 255, 255, 0.41);
+  color: black;
+}
+
+.react-quill .ql-container {
+  background-color: rgba(255, 255, 255, 0.41);
+  color: black;
 }
