@@ -1,5 +1,4 @@
-import React, {useState} from "react";
-import '../styles.scss'
+import React, { useState } from 'react';
 import {
     Modal,
     ModalOverlay,
@@ -13,8 +12,9 @@ import {
     FormLabel,
     Input,
     Textarea,
-    useToast, Text,
+    useToast,
 } from '@chakra-ui/react';
+import { FaEnvelope } from 'react-icons/fa';
 
 const ContactPopup = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,26 +22,18 @@ const ContactPopup = () => {
     const [text, setText] = useState('');
     const toast = useToast();
 
-    const togglePopup = () => {
-        setIsOpen(!isOpen);
-    };
-    const onClose = () => {
-        setIsOpen(false);
-    }
+    const togglePopup = () => setIsOpen(!isOpen);
+    const onClose = () => setIsOpen(false);
+
     const handleSubmit = () => {
         const url = 'http://localhost:3000/contact/';
         fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                subject,
-                text,
-            }),
+            body: JSON.stringify({ subject, text }),
         })
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(() => {
@@ -55,23 +47,30 @@ const ContactPopup = () => {
             })
             .catch((error) => {
                 console.error('Error adding/updating post:', error);
-                toast({
-                    title: 'Napaka pri komunikaciji.',
-                    status: 'error',
-                });
+                toast({ title: 'Napaka pri komunikaciji.', status: 'error' });
             });
-        }
+    };
 
-        return (
+    return (
         <div>
-            <button onClick={togglePopup}>Kontakt</button>
+            <a
+                onClick={togglePopup}
+                style={{
+                    color: 'currentColor',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
+            >
+                <FaEnvelope />
+            </a>
+
             {isOpen && (
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader>
-                            Kontakt
-                        </ModalHeader>
+                        <ModalHeader>Kontakt</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
                             <FormControl mb={4}>
@@ -82,7 +81,7 @@ const ContactPopup = () => {
                                 />
                             </FormControl>
                             <FormControl mb={4}>
-                                <FormLabel>Kategorija</FormLabel>
+                                <FormLabel>Sporočilo</FormLabel>
                                 <Textarea
                                     placeholder="Sporočilo"
                                     onChange={(e) => setText(e.target.value)}
@@ -104,4 +103,3 @@ const ContactPopup = () => {
 };
 
 export default ContactPopup;
-

@@ -90,7 +90,7 @@ const Footer: React.FC = () => {
                 </svg>
               </a>
             </li>
-            <li>
+            <li className="px-4">
               <ContactPopup />
             </li>
           </ul>
