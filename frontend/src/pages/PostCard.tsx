@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Heading, Text, Button, Flex } from '@chakra-ui/react';
+import { Box, Heading, Text, Button, Flex, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import {AiFillStar, AiOutlineStar} from "react-icons/ai";
+import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 
 const PostCard: React.FC<{ post: any }> = ({ post }) => {
     const stripHtmlTags = (html: string): string => {
@@ -41,12 +41,21 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
         return Math.round((upvotes / total) * 5);
     };
 
+    // Theme-aware colors
+    const cardBg = useColorModeValue('white', 'gray.700');
+    const frontBg = useColorModeValue('gray.100', 'gray.700');
+    const backBg = useColorModeValue('blue.50', 'blue.800');
+    const textColor = useColorModeValue('gray.800', 'gray.200');
+    const subTextColor = useColorModeValue('gray.600', 'gray.400');
+
     return (
         <Box
             width="300px"
             height="200px"
             borderRadius="md"
             overflow="hidden"
+            bg={cardBg}
+            color={textColor}
             sx={{
                 perspective: '1000px',
             }}
@@ -71,19 +80,19 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                     sx={{
                         backfaceVisibility: 'hidden',
                     }}
-                    bg="white"
+                    bg={frontBg}
                     p={4}
                     boxShadow="md"
                     borderRadius="md"
                 >
                     <Heading fontSize="lg">{post.title}</Heading>
-                    <Text mt={2} fontSize="sm" color="gray.600">
+                    <Text mt={2} fontSize="sm" color={subTextColor}>
                         Kategorija: {post.category}
                     </Text>
-                    <Text mt={2} fontSize="sm" color="gray.500">
+                    <Text mt={2} fontSize="sm" color={subTextColor}>
                         Avtor: {post.userId?.username || 'Neznan uporabnik'}
                     </Text>
-                    <Text mt={2} fontSize="sm" color="gray.500">
+                    <Text mt={2} fontSize="sm" color={subTextColor}>
                         Datum: {formatDate(post.createdAt)}
                     </Text>
                     <Box mt={2} display="flex" alignItems="center">
@@ -99,7 +108,7 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                     position="absolute"
                     width="100%"
                     height="100%"
-                    bg="blue.50"
+                    bg={backBg}
                     p={4}
                     boxShadow="md"
                     borderRadius="md"
@@ -111,10 +120,10 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                     <Heading fontSize="md" mb={2}>
                         Vsebina objave
                     </Heading>
-                    <Text noOfLines={4} fontSize="sm" color="gray.700" mb={4}>
+                    <Text noOfLines={4} fontSize="sm" color={textColor} mb={4}>
                         {stripHtmlTags(post.content)}
                     </Text>
-                    <Text fontSize="sm" color="gray.500" mb={2}>
+                    <Text fontSize="sm" color={subTextColor} mb={2}>
                         Komentarji: {post.comments?.length || 0}
                     </Text>
                     <Flex justify="center" mt={8}>

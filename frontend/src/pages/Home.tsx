@@ -9,6 +9,7 @@ import {
   Flex,
   Icon,
   Spinner,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,16 +18,21 @@ import {
   faUsers,
   faSearch,
   faShieldAlt,
-  faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { Post } from '../interfaces/Post';
-import PostCard from "./PostCard";
+import PostCard from './PostCard';
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Theme-aware colors
+  const bg = useColorModeValue('white', 'gray.800');
+  const color = useColorModeValue('gray.800', 'gray.200');
+  const headingColor = useColorModeValue('blue.800', 'blue.300');
+  const featureIconColor = useColorModeValue('blue.500', 'blue.300');
+  const featureTextColor = useColorModeValue('gray.700', 'gray.300');
 
   const loadPosts = () => {
     setLoading(true);
@@ -53,16 +59,17 @@ const Home: React.FC = () => {
 
   const topLikedPosts = posts
       .slice()
-      .sort((a, b) => b.upvotes - a.upvotes) // Sort posts by upvotes in descending order
-      .slice(0, 3); // Take the top 3 posts
+      .sort((a, b) => b.upvotes - a.upvotes)
+      .slice(0, 3);
 
   return (
-      <Box p={6} bg="gray.50">
+      <Box bg={bg} color={color} p={6}>
         <Box flex={1} textAlign={{ base: 'center' }} px={4}>
-          <Heading as="h1" size="2xl" mb={4} color="blue.800">
+          <Heading as="h1" size="2xl" mb={4} color={headingColor}>
             Dobrodošli na YourVoice Forumu
           </Heading>
         </Box>
+
         <Stack
             direction={{ base: 'column', md: 'row' }}
             spacing={8}
@@ -73,7 +80,7 @@ const Home: React.FC = () => {
         >
           {/* Left Column */}
           <Box flex={1} textAlign={{ base: 'center', md: 'center' }} px={4}>
-            <Text fontSize="lg" color="gray.700" mb={6}>
+            <Text fontSize="lg" color={featureTextColor} mb={6}>
               YourVoice je interaktivni forum, zasnovan za izmenjavo informacij in
               povezovanje uporabnikov. Aplikacija omogoča prijavljenim
               uporabnikom, da objavljajo svoje vsebine, komentirajo, ocenjujejo
@@ -129,7 +136,7 @@ const Home: React.FC = () => {
 
         {/* Features Section */}
         <Box mt={12} textAlign="center">
-          <Heading as="h2" size="xl" mb={10}>
+          <Heading as="h2" size="xl" mb={10} color={headingColor}>
             Zakaj smo prava izbira?
           </Heading>
           <Stack
@@ -142,10 +149,10 @@ const Home: React.FC = () => {
                   as={FontAwesomeIcon}
                   icon={faComments}
                   boxSize={16}
-                  color="blue.500"
+                  color={featureIconColor}
                   mb={4}
               />
-              <Text fontWeight="bold" fontSize="lg">
+              <Text fontWeight="bold" fontSize="lg" color={featureTextColor}>
                 Interaktivne razprave
               </Text>
             </Box>
@@ -154,10 +161,10 @@ const Home: React.FC = () => {
                   as={FontAwesomeIcon}
                   icon={faUsers}
                   boxSize={16}
-                  color="blue.500"
+                  color={featureIconColor}
                   mb={4}
               />
-              <Text fontWeight="bold" fontSize="lg">
+              <Text fontWeight="bold" fontSize="lg" color={featureTextColor}>
                 Močna skupnost
               </Text>
             </Box>
@@ -166,10 +173,10 @@ const Home: React.FC = () => {
                   as={FontAwesomeIcon}
                   icon={faSearch}
                   boxSize={16}
-                  color="blue.500"
+                  color={featureIconColor}
                   mb={4}
               />
-              <Text fontWeight="bold" fontSize="lg">
+              <Text fontWeight="bold" fontSize="lg" color={featureTextColor}>
                 Napredna orodja
               </Text>
             </Box>
@@ -178,10 +185,10 @@ const Home: React.FC = () => {
                   as={FontAwesomeIcon}
                   icon={faShieldAlt}
                   boxSize={16}
-                  color="blue.500"
+                  color={featureIconColor}
                   mb={4}
               />
-              <Text fontWeight="bold" fontSize="lg" mb={2}>
+              <Text fontWeight="bold" fontSize="lg" color={featureTextColor}>
                 Varno in zaupanja vredno
               </Text>
             </Box>
@@ -189,13 +196,13 @@ const Home: React.FC = () => {
         </Box>
 
         <Box mt={12}>
-          <Heading as="h2" size="xl" mb={10} textAlign="center">
+          <Heading as="h2" size="xl" mb={10} textAlign="center" color={headingColor}>
             Najbolj popularne objave
           </Heading>
           {loading ? (
               <Spinner size="xl" />
           ) : topLikedPosts.length === 0 ? (
-              <Text fontSize="lg" color="gray.500" textAlign="center" mt={8}>
+              <Text fontSize="lg" color={featureTextColor} textAlign="center" mt={8}>
                 Trenutno ni nobenih objav.
               </Text>
           ) : (
@@ -206,9 +213,6 @@ const Home: React.FC = () => {
               </Flex>
           )}
         </Box>
-
-
-
       </Box>
   );
 };
