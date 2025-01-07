@@ -15,11 +15,10 @@ const Footer: React.FC = () => {
       }}>
         <div className="col-md-6 d-flex flex-column align-items-start">
           <span className="footer-text mb-1">
-            v0.0.1 Beta © 2024 by Oset, Ternik, Vučetić
+            v0.0.2 Beta © 2025 by Roj, Tominc, Hrastnik
           </span>
           <span className="footer-text">
-            Projekt Your Voice, Fakulteta za elektrotehniko, računalništvo in
-            informatiko Maribor
+            Projekt Your Voice, Fakulteta za elektrotehniko, računalništvo in informatiko Maribor
           </span>
         </div>
 
