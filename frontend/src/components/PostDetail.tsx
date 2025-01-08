@@ -17,12 +17,15 @@ import {
   ModalBody,
   ModalFooter,
   Textarea,
-  useDisclosure, Icon, IconButton, Image
+  useDisclosure,
+  Icon,
+  IconButton,
+  Image,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai';
 import { FaTrashAlt } from 'react-icons/fa';
-
 
 interface User {
   username: string;
@@ -55,9 +58,12 @@ const PostDetail: React.FC = () => {
   const { user } = useContext(UserContext);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const navigate = useNavigate();
-
-  // Ustvarite ref za textarea
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const bg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.800', 'gray.200');
+  const cardBg = useColorModeValue('gray.100', 'gray.700');
+  const dividerColor = useColorModeValue('gray.200', 'gray.600');
 
   const fetchPost = () => {
     setLoading(true);
@@ -131,7 +137,6 @@ const PostDetail: React.FC = () => {
     }
   };
 
-
   const handleCommentDelete = (commentId: string) => {
     if (!user) {
       alert('Prijavite se za brisanje komentarja.');
@@ -156,54 +161,33 @@ const PostDetail: React.FC = () => {
   };
 
   return (
-    <Box
-      p={8}
-      maxW="container.md"
-      mx="auto"
-      borderWidth="1px"
-      borderRadius="lg"
-      shadow="lg"
-    >
-      <Button onClick={() => navigate('/posts')} colorScheme="teal" mb={6}>
-        Nazaj na objave
-      </Button>
-      {loading ? (
-        <Spinner size="xl" />
-      ) : post ? (
-        <>
-          <Heading as="h2" size="xl" mb={4} textAlign="center" color="teal.600">
-            {post.title}
-          </Heading>
-          <Divider mb={4} />
-          <Flex justify="space-between" color="gray.500" fontSize="sm" mb={6}>
-            <Text>
-              Kategorija: <strong>{post.category}</strong>
-            </Text>
-            <Text>
-              Datum: <b>{new Date(post.createdAt).toLocaleDateString()}</b>
-            </Text>
-          </Flex>
-          <Text color="gray.500" fontSize="sm" mb={4}>
-            Avtor:{' '}
-            <strong>{post.userId?.username || 'Neznan uporabnik'}</strong>
-          </Text>
-          <Box
-              fontSize="md"
-              lineHeight="tall"
-              mt={4}
-              color="gray.700"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-              sx={{
-                h1: {fontSize: '2xl', fontWeight: 'bold', marginBottom: '1rem', color: 'teal.500'},
-                h2: {fontSize: 'xl', fontWeight: 'semibold', marginBottom: '0.75rem', color: 'teal.400'},
-                h3: {fontSize: 'lg', fontWeight: 'medium', marginBottom: '0.5rem', color: 'gray.700'},
-                ul: {marginLeft: '1.5rem'},
-                ol: {marginLeft: '1.5rem'},
-                li: {marginLeft: '0.5rem'},
-                a: {color: 'blue.500', textDecoration: 'underline'},
-              }}
-          ></Box>
-          {post.photoPath && (
+      <Box mt={20} p={8} maxW="container.md" mx="auto" bg={bg} color={textColor} borderWidth="1px" borderRadius="lg" shadow="lg">
+        <Button onClick={() => navigate('/posts')} colorScheme="teal" mb={6}>Nazaj na objave</Button>
+        {loading ? (
+            <Spinner size="xl" />
+        ) : post ? (
+            <>
+              <Heading as="h2" size="xl" mb={4} textAlign="center" color="teal.500">{post.title}</Heading>
+              <Divider mb={4} borderColor={dividerColor} />
+              <Flex justify="space-between" fontSize="sm" mb={6}>
+                <Text>Kategorija: <strong>{post.category}</strong></Text>
+                <Text>Datum: <b>{new Date(post.createdAt).toLocaleDateString('sl-SI')}</b></Text>
+              </Flex>
+              <Text fontSize="sm" mb={4}>Avtor: <strong>{post.userId?.username || 'Neznan uporabnik'}</strong></Text>
+              <Box fontSize="md" lineHeight="tall"
+                  mt={4}
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  sx={{
+                    h1: { fontSize: '2xl', fontWeight: 'bold', mb: 4, color: 'teal.500' },
+                    h2: { fontSize: 'xl', fontWeight: 'semibold', mb: 3, color: 'teal.400' },
+                    h3: {fontSize: 'lg', fontWeight: 'medium', marginBottom: '0.5rem', color: 'gray.700'},
+                    ul: { ml: 6 },
+                    ol: { ml: 6 },
+                    li: { mb: 2 },
+                    a: { color: 'blue.400', textDecoration: 'underline' },
+                  }}
+              ></Box>
+                        {post.photoPath && (
                       <Box mt={4}>
                         <Image
                           src={"http://localhost:3000/"+post.photoPath}  // Preveri, da `imagePath` vsebuje pravilno pot do slike
@@ -214,52 +198,65 @@ const PostDetail: React.FC = () => {
                         />
                       </Box>
                     )}
-
-          <Divider my={6} />
-          <Heading as="h3" size="md" mb={4}>
-            Komentarji
-          </Heading>
+              <Divider my={6} borderColor={dividerColor} />
+              <Heading as="h3" size="md" mb={4}>
+                Komentarji
+              </Heading>
 
           <Button colorScheme="teal" mb={4} onClick={onOpen}>
             Dodaj komentar
           </Button>
 
-          <Flex align="center" gap={2} justifyContent="flex-end" mb="20px">
-            <Button leftIcon={<Icon as={AiOutlineArrowDown} />} size="sm" colorScheme={sortOrder === 'newest' ? 'teal' : 'gray'} onClick={() => setSortOrder('newest')}>
-              Najnovejši
-            </Button>
-            <Button leftIcon={<Icon as={AiOutlineArrowUp} />} size="sm" colorScheme={sortOrder === 'oldest' ? 'teal' : 'gray'} onClick={() => setSortOrder('oldest')}>
-              Najstarejši
-            </Button>
-          </Flex>
+              <Flex gap={2} justifyContent="flex-end" mb={6}>
+                <Button
+                    leftIcon={<Icon as={AiOutlineArrowDown} />}
+                    size="sm"
+                    colorScheme={sortOrder === 'newest' ? 'teal' : 'gray'}
+                    onClick={() => setSortOrder('newest')}
+                >
+                  Najnovejši
+                </Button>
+                <Button
+                    leftIcon={<Icon as={AiOutlineArrowUp} />}
+                    size="sm"
+                    colorScheme={sortOrder === 'oldest' ? 'teal' : 'gray'}
+                    onClick={() => setSortOrder('oldest')}
+                >
+                  Najstarejši
+                </Button>
+              </Flex>
 
-          {post.comments && post.comments.length > 0 ? (
-            <VStack spacing={4} align="start">
-              {post.comments
-                  .sort((a, b) => {
-                  if (sortOrder === 'newest') {
-                    return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                } else {
-                    return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-                }
-                })
-                .map((comment) => (
-                    <Box key={comment._id} p={4} borderWidth="1px" borderRadius="md" w="full">
-                      <Flex justify="space-between" align="center">
-                        <Text fontSize="sm" color="gray.500">
-                          {comment.userId.username} - {formatCommentDate(comment.createdAt)}
-                        </Text>
-                        {user?._id && comment.userId?._id === user._id && (
-                            <IconButton icon={<FaTrashAlt />} colorScheme="red" size="sm" aria-label="Izbriši komentar" onClick={() => handleCommentDelete(comment._id)}/>
-                        )}
-                      </Flex>
-                      <Text mt={2}>{comment.content}</Text>
-                    </Box>
-                ))}
-            </VStack>
-          ) : (
-            <Text color="gray.500">Ni komentarjev. Bodite prvi, ki komentirate!</Text>
-          )}
+              {post.comments && post.comments.length > 0 ? (
+                  <VStack spacing={4} align="start">
+                    {post.comments
+                        .sort((a, b) =>
+                            sortOrder === 'newest'
+                                ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                                : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                        )
+                        .map((comment) => (
+                            <Box key={comment._id} p={4} bg={cardBg} borderRadius="md" w="full">
+                              <Flex justify="space-between">
+                                <Text fontSize="sm">
+                                  {comment.userId.username} - {formatCommentDate(comment.createdAt)}
+                                </Text>
+                                {user?._id === comment.userId._id && (
+                                    <IconButton
+                                        icon={<FaTrashAlt />}
+                                        size="sm"
+                                        colorScheme="red"
+                                        aria-label="Izbriši komentar"
+                                        onClick={() => handleCommentDelete(comment._id)}
+                                    />
+                                )}
+                              </Flex>
+                              <Text mt={2}>{comment.content}</Text>
+                            </Box>
+                        ))}
+                  </VStack>
+              ) : (
+                  <Text>Ni komentarjev. Bodite prvi, ki komentirate!</Text>
+              )}
 
           <Modal
             isOpen={isOpen}

@@ -1,4 +1,3 @@
-// AddPostModal.tsx
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import {
   Modal,
@@ -12,9 +11,9 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Textarea,
   useToast,
-  Select
+  Select,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import { Post } from '../interfaces/Post';
@@ -31,8 +30,13 @@ interface AddPostModalProps {
 }
 
 const AddPostModal: React.FC<AddPostModalProps> = ({
-  isOpen, onClose, onPostAdded, post, onSaveDraft, draftPost,
-}) => {
+                                                     isOpen,
+                                                     onClose,
+                                                     onPostAdded,
+                                                     post,
+                                                     onSaveDraft,
+                                                     draftPost,
+                                                   }) => {
   const { user } = useContext(UserContext); // Get the currently logged-in user
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -40,6 +44,12 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   const toast = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null); // Poskrbi, da `file` sprejema `File | null`
+
+  // Theme-aware colors
+  const modalBg = useColorModeValue('white', 'gray.800');
+  const modalText = useColorModeValue('gray.800', 'gray.200');
+  const inputBg = useColorModeValue('gray.100', 'gray.700');
+  const inputText = useColorModeValue('gray.800', 'gray.200');
 
   useEffect(() => {
     if (post) {
@@ -84,8 +94,8 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
     }
 
     const url = post
-      ? `http://localhost:3000/post/${post._id}`
-      : 'http://localhost:3000/post';
+        ? `http://localhost:3000/post/${post._id}`
+        : 'http://localhost:3000/post';
     const method = post ? 'PUT' : 'POST';
     const formData = new FormData();
 formData.append("title", title);
@@ -99,33 +109,33 @@ if (file) {
       method: method,
       body: formData,
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(() => {
-        toast({
-          title: post
-            ? 'Objava uspešno posodobljena!'
-            : 'Objava uspešno dodana!',
-          status: 'success',
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(() => {
+          toast({
+            title: post
+                ? 'Objava uspešno posodobljena!'
+                : 'Objava uspešno dodana!',
+            status: 'success',
+          });
+          setTitle('');
+          setContent('');
+          setCategory('');
+          onPostAdded();
+          setFile(null);
+          onClose();
+        })
+        .catch((error) => {
+          console.error('Error adding/updating post:', error);
+          toast({
+            title: 'Napaka pri dodajanju/posodabljanju objave.',
+            status: 'error',
+          });
         });
-        setTitle('');
-        setContent('');
-        setCategory('');
-        onPostAdded();
-        setFile(null);
-        onClose();
-      })
-      .catch((error) => {
-        console.error('Error adding/updating post:', error);
-        toast({
-          title: 'Napaka pri dodajanju/posodabljanju objave.',
-          status: 'error',
-        });
-      });
     onSaveDraft(null);
   };
 
@@ -139,7 +149,7 @@ if (file) {
           initialFocusRef={titleInputRef}
       >
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg={modalBg} color={modalText}>
           <ModalHeader>{post ? 'Uredi objavo' : 'Dodaj novo objavo'}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
@@ -151,6 +161,8 @@ if (file) {
                   placeholder="Vnesite naslov"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  bg={inputBg}
+                  color={inputText}
               />
             </FormControl>
 
@@ -160,8 +172,12 @@ if (file) {
               <Select
                   placeholder="Izberite kategorijo"
                   value={category}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setCategory(e.target.value)
+                  }
                   mb={2}
+                  bg={inputBg}
+                  color={inputText}
               >
                 {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((cat) => (
                     <option key={cat} value={cat}>
@@ -207,8 +223,10 @@ if (file) {
                     ],
                   }}
                   placeholder="Vnesite vsebino"
+                  className="react-quill"
               />
             </FormControl>
+
           </ModalBody>
 
           {/* Footer Buttons */}

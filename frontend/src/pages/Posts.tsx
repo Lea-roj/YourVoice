@@ -7,26 +7,34 @@ import {
   Text,
   Spinner,
   Input,
-  useDisclosure, Select, Image
+  useDisclosure, Select, Image,
+  useColorModeValue,
+   Flex,
 } from '@chakra-ui/react';
 import { UserContext } from '../userContext';
 import AddPostModal from '../components/AddPostModal';
 import { Post } from '../interfaces/Post';
 import { Link } from 'react-router-dom';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
-
+import { FaEdit, FaThumbsDown } from 'react-icons/fa';
+import {FaThumbsUp, FaTrash} from "react-icons/fa6"; // Import the edit icon
 
 const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Track selected post for editing
-  const [searchQuery, setSearchQuery] = useState(''); // Search query state
-  const [authorQuery, setAuthorQuery] = useState(''); // Author query state
-  const [sortOrder, setSortOrder] = useState('newest'); // Sorting state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [authorQuery, setAuthorQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
+  const [selectedCategory, setSelectedCategory] = useState('Splošno');
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [draftPost, setDraftPost] = useState<Post | null>(null);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useContext(UserContext);
-  const [selectedCategory, setSelectedCategory] = useState('Splošno');
-  const [draftPost, setDraftPost] = useState<Post | null>(null);
+
+  const bg = useColorModeValue('white', 'gray.800');
+  const cardBg = useColorModeValue('gray.50', 'gray.700');
+  const textColor = useColorModeValue('gray.800', 'gray.200');
 
   const loadPosts = () => {
     setLoading(true);
@@ -179,41 +187,34 @@ const filteredPosts = posts.filter(
   };
 
   return (
-    <Box p={6} maxW="container.lg" mx="auto">
-      <Heading as="h2" size="xl" mb={6} textAlign="center">
-        Forum - Objave
-      </Heading>
+      <Box p={6} maxW="container.lg" mx="auto" bg={bg} color={textColor}>
+        <Heading as="h2" size="xl" mb={6} textAlign="center">
+          Forum - Objave
+        </Heading>
 
-{/* Category Navigation Bar */}
-<Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      mb={6}
-      gap={4}
-      bg="gray.100"
-      p={3}
-      borderRadius="md"
-    >
-      {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map((category) => (
-        <Button
-          key={category}
-          variant={selectedCategory === category ? 'solid' : 'outline'}
-          colorScheme="blue"
-          onClick={() => setSelectedCategory(category)}
-        >
-          {category}
-        </Button>
-      ))}
-    </Box>
+        {/* Category Navigation */}
+        <Box display="flex" justifyContent="center" mb={6} gap={4}>
+          {['Splošno', 'Tehnologija', 'Izobraževanje', 'Šport', 'Zabava'].map(
+              (category) => (
+                  <Button
+                      key={category}
+                      variant={selectedCategory === category ? 'solid' : 'outline'}
+                      colorScheme="blue"
+                      onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </Button>
+              )
+          )}
+        </Box>
 
-      {user && (
-        <Button onClick={onOpen} colorScheme="blue" mb={6}>
-          Dodaj novo objavo
-        </Button>
-      )}
+        {user && (
+            <Button onClick={onOpen} colorScheme="blue" mb={6}>
+              Dodaj novo objavo
+            </Button>
+        )}
 
-        {/* Search Bars */}
+        {/* Search & Sort */}
         <Input
             placeholder="Išči po naslovu..."
             value={searchQuery}
@@ -226,8 +227,6 @@ const filteredPosts = posts.filter(
             onChange={(e) => setAuthorQuery(e.target.value)}
             mb={4}
         />
-
-        {/* Sorting Dropdown */}
         <Select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
@@ -249,38 +248,62 @@ const filteredPosts = posts.filter(
             <Stack spacing={6}>
               {filteredPosts
                   .sort((a, b) => {
-                    if (sortOrder === 'newest') {
+                    if (sortOrder === 'newest')
                       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                    } else if (sortOrder === 'oldest') {
+                    if (sortOrder === 'oldest')
                       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-                    } else if (sortOrder === 'mostLikes') {
-                      return b.upvotes - a.upvotes;
-                    } else if (sortOrder === 'leastLikes') {
-                      return a.upvotes - b.upvotes;
-                    }
+                    if (sortOrder === 'mostLikes') return b.upvotes - a.upvotes;
+                    if (sortOrder === 'leastLikes') return a.upvotes - b.upvotes;
                     return 0;
                   })
-          .map((post) => (
-              <Box
-                  key={post._id}
-                  p={5}
-                  shadow="md"
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  _hover={{ bg: 'gray.50' }}
-              >
-              <Heading fontSize="xl">{post.title}</Heading>
-              <Text mt={2} fontSize="md" color="gray.600">
-                Kategorija: {post.category}
-              </Text>
-              <Text mt={2} fontSize="sm" color="gray.500">
-                Avtor: {post?.userId?.username || 'Neznan uporabnik'}
-              </Text>
-              <Text mt={2} fontSize="sm" color="gray.500">
-                Datum objave: {formatDate(post.createdAt)}
-              </Text>
+                  .map((post) => (
+                      <Box
+                          key={post._id}
+                          p={5}
+                          shadow="md"
+                          borderWidth="1px"
+                          borderRadius="lg"
+                          bg={cardBg}
+                      >
+                        <Flex align="center" justify="space-between">
+                          <Heading fontSize="xl">{post.title}</Heading>
+                          {user && post.userId && post.userId._id === user._id && (
+                              <Flex gap={2}>
+                                {/* Edit Button with Icon */}
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    colorScheme="blue"
+                                    onClick={() => handleEditPost(post)}
+                                    leftIcon={<FaEdit />}
+                                >
+                                  Uredi
+                                </Button>
 
-              {post.photoPath && (
+                                {/* Delete Button with Icon */}
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    colorScheme="red"
+                                    onClick={() => handleDeletePost(post._id)}
+                                    leftIcon={<FaTrash />}
+                                >
+                                  Izbriši
+                                </Button>
+                              </Flex>
+                          )}
+                        </Flex>
+
+                        <Text mt={2} fontSize="sm">
+                          Kategorija: {post.category}
+                        </Text>
+                        <Text mt={2} fontSize="sm">
+                          Avtor: {post.userId?.username || 'Neznan uporabnik'}
+                        </Text>
+                        <Text mt={2} fontSize="sm">
+                          Datum objave: {formatDate(post.createdAt)}
+                        </Text>
+                        {post.photoPath && (
             <Box mt={4}>
               <Image
                 src={"http://localhost:3000/"+post.photoPath}  // Preveri, da `imagePath` vsebuje pravilno pot do slike
@@ -291,105 +314,58 @@ const filteredPosts = posts.filter(
               />
             </Box>
           )}
+                        <Box mt={2} display="flex" alignItems="center">
+                          <Text fontSize="sm" mr={2}>
+                            Ocena:
+                          </Text>
+                          {renderStars(calculateRating(post.upvotes, post.downvotes))}
+                        </Box>
+                        <Link to={`/posts/${post._id}`}>
+                          <Button colorScheme="teal" mt={4}>
+                            Preberi več
+                          </Button>
+                        </Link>
+                        <Box mt={4} display="flex" justifyContent="flex-end" gap={3}>
+                          {/* Thumbs Up Button */}
+                          <Button
+                              size="sm"
+                              variant="outline"
+                              colorScheme="green"
+                              onClick={() => handleLikePost(post._id)}
+                              leftIcon={<FaThumbsUp />}
+                          >
+                            {post.upvotes}
+                          </Button>
 
+                          {/* Thumbs Down Button */}
+                          <Button
+                              size="sm"
+                              variant="outline"
+                              colorScheme="red"
+                              onClick={() => handleDislikePost(post._id)}
+                              leftIcon={<FaThumbsDown />}
+                          >
+                            {post.downvotes}
+                          </Button>
+                        </Box>
 
-                <Box mt={2} display="flex" alignItems="center">
-                  <Text fontSize="sm" mr={2}>
-                    Ocena:
-                  </Text>
-                  {renderStars(calculateRating(post.upvotes, post.downvotes))}
-                </Box>
-
-              <Link to={`/posts/${post._id}`}>
-                <Button colorScheme="teal" mt={4}>
-                  Preberi več
-                </Button>
-              </Link>
-              {user && post.userId && post.userId._id === user._id && (
-                <Box mt={4}>
-                  <Button
-                    colorScheme="green"
-                    mr={3}
-                    onClick={() => handleEditPost(post)} // Edit post
-                  >
-                    Uredi
-                  </Button>
-                  <Button
-                    colorScheme="red"
-                    onClick={() => handleDeletePost(post._id)} // Delete post
-                  >
-                    Izbriši
-                  </Button>
-                </Box>
-            )}
-      {/* Like and Dislike Buttons */}
-      <Box
-        mt={4}
-        display="flex"
-        justifyContent="flex-end"
-        alignItems="center"
-        gap={3}
-      >
-        {/* Like */}
-        <Box
-          display="flex"
-          alignItems="center"
-          bg="green.100"
-          borderRadius="full"
-          px={3}
-          py={1}
-        >
-          <Button
-            size="sm"
-            colorScheme="green"
-            variant="solid"
-            onClick={() => handleLikePost(post._id)}
-          >
-            Like
-          </Button>
-          <Text ml={2} fontWeight="bold" color="green.700" fontSize="sm">
-            {post.upvotes}
-          </Text>
-        </Box>
-
-        {/* Dislike */}
-        <Box
-          display="flex"
-          alignItems="center"
-          bg="red.100"
-          borderRadius="full"
-          px={3}
-          py={1}
-        >
-          <Button
-            size="sm"
-            colorScheme="red"
-            variant="solid"
-            onClick={() => handleDislikePost(post._id)}
-          >
-            Dislike
-          </Button>
-          <Text ml={2} fontWeight="bold" color="red.700" fontSize="sm">
-            {post.downvotes}
-          </Text>
-        </Box>
-      </Box>
-            </Box>
-        ))}
-      </Stack>
+                      </Box>
+                  ))}
+            </Stack>
         )}
-      <AddPostModal
-          isOpen={isOpen}
-          onClose={() => {
-            onClose();
-            setSelectedPost(null);
-          }}
-          onPostAdded={handlePostAdded}
-          post={selectedPost}
-          onSaveDraft={setDraftPost}
-          draftPost={draftPost}
-      />
-    </Box>
+
+        <AddPostModal
+            isOpen={isOpen}
+            onClose={() => {
+              onClose();
+              setSelectedPost(null);
+            }}
+            onPostAdded={handlePostAdded}
+            post={selectedPost}
+            onSaveDraft={setDraftPost}
+            draftPost={draftPost}
+        />
+      </Box>
   );
 };
 
