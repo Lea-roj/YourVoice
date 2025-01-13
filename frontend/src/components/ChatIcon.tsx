@@ -1,11 +1,12 @@
 import {Box, Button, Flex, Text} from '@chakra-ui/react';
 
-const ChatIcon = () => {
+// @ts-ignore
+const ChatIcon = (props) => {
         const handleClick = () => {
             // Handle the button click here, e.g.,
             console.log("Button clicked!");
         };
-
+    console.log(props);
     return (
         <Button
             as={Flex}
@@ -24,7 +25,7 @@ const ChatIcon = () => {
             m={2}
             onClick={handleClick}
         >
-            <Text fontSize="sm">This is some information.</Text>
+            <Text fontSize="sm">{props.val}</Text>
         </Button>
     );
 };

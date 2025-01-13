@@ -21,7 +21,26 @@ const NewChat = () => {
     };
 
     const handleConfirm = () => {
-        console.log('New chat: ', inputValue);
+        // @ts-ignore
+        const userData = JSON.parse(localStorage.getItem('user'));
+        // @ts-ignore
+        console.log(userData._id)
+        const body = {
+            userId: userData._id,
+            user: inputValue
+        }
+
+        fetch('http://localhost:3000/chat/newChat', {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
         setInputValue('');
         onClose();
     };
