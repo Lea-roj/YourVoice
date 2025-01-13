@@ -1,12 +1,24 @@
 import {Box, Button, Flex, Text} from '@chakra-ui/react';
+import {ChatContext} from "../contexts/ChatContext";
+import {useContext} from "react";
 
 // @ts-ignore
 const ChatIcon = (props) => {
-        const handleClick = () => {
-            // Handle the button click here, e.g.,
-            console.log("Button clicked!");
+    // const chat = ;
+    const [chatId, setChatId] = useContext(ChatContext)
+    const handleClick = () => {
+
+        console.log(props.id)
+        // @ts-ignore
+        setChatId(props.id)
+        // @ts-ignore
+        setChatId(props.id)
+        setTimeout(() => {
+        }, 1000);
+        console.log(chatId)
+        console.log("Button clicked!");
         };
-    console.log(props);
+    // console.log(props);
     return (
         <Button
             as={Flex}

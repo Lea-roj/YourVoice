@@ -11,7 +11,7 @@ const ChatList = () => {
         // @ts-ignore
         const userData = JSON.parse(localStorage.getItem('user'));
         // @ts-ignore
-        console.log(userData._id)
+        // console.log(userData._id)
         const body = {
             userId: userData._id
         }
@@ -27,18 +27,19 @@ const ChatList = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
+                // console.log(data);
                 let c : Chat[] = [];
                 for(let i = 0; i < data.length; i++) {
                     var otherId: string = '';
                     var otherUsername: string = '';
-
-                    if(userData._id == data[i].userId1){
+                    // console.log(data[i]);
+                    // console.log(userData);
+                    if(userData._id == data[i].user1.id){
                         otherId = data[i].user2.id;
-                        otherUsername = data[i].user1.username;
+                        otherUsername = data[i].user2.username;
                     }else{
                         otherId = data[i].user1.id;
-                        otherUsername = data[i].user2.username;
+                        otherUsername = data[i].user1.username;
                     }
 
                     const cInfo : Chat = {
@@ -47,7 +48,6 @@ const ChatList = () => {
                     }
                     c.push(cInfo);
                 }
-                console.log(c)
                 setChats(c);
                 setLoading(false);
             })
@@ -60,7 +60,8 @@ const ChatList = () => {
 
 
     useEffect(() => {
-        loadPosts();
+        const intervalId = setInterval(loadPosts, 500);
+        return () => clearInterval(intervalId);
     }, []);
     // @ts-ignore
     return (
@@ -80,7 +81,7 @@ const ChatList = () => {
                 {loading ? (
                     <Spinner size="xl" />
                 ) :  (
-                    chats.map(chat => <ChatIcon id={chat._id} val={chat.name}/>)
+                    chats.map(chat => <ChatIcon key={Math.random()} id={chat._id} val={chat.name}/>)
                     )}
             </div>
 

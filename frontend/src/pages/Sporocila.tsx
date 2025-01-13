@@ -2,7 +2,6 @@ import React from "react";
 import {Box, Flex} from "@chakra-ui/react";
 import ChatList from "../components/ChatList";
 import Chat from "../components/Chat";
-
 const Sporocila: React.FC = () => {
     return (
         <Flex

@@ -35,6 +35,7 @@ router.post('/newMessage', function (req, res) {
                         error: err
                     });
                 }
+                console.log(Chat);
                 var newMsg = new MessageModel({
                     userId: new ObjectId(data.userId),
                     chatId: Chat._id,

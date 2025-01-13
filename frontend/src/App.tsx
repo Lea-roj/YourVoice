@@ -13,6 +13,7 @@ import LearnMore from "./pages/LearnMore";
 import PostDetail from './components/PostDetail';
 import { ChakraProvider, ColorModeScript, extendTheme } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './components/ColorModeSwitcher'; // A toggle button for color mode
+import { ChatContextProvider } from './contexts/ChatContext';
 
 // Chakra UI theme setup
 const config = {
@@ -23,6 +24,7 @@ const config = {
 const theme = extendTheme({ config });
 
 function App() {
+  const [chatId, setChatId] = useState('');
   const [user, setUser] = useState<User | null>(
     localStorage.user ? JSON.parse(localStorage.user) : null
   );
@@ -47,6 +49,7 @@ function App() {
   };
 
   return (
+      <ChatContextProvider>
       <ChakraProvider theme={theme}>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <BrowserRouter>
@@ -89,6 +92,7 @@ function App() {
           <Footer />
         </BrowserRouter>
       </ChakraProvider>
+      </ChatContextProvider>
   );
 }
 
