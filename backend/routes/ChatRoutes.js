@@ -5,6 +5,10 @@ var UserModel = require('../models/UserModel');
 const {ObjectId} = require('mongodb');
 
 router.post('/newChat', function (req, res) {
+    // {
+    //     "userId": "676019104a1dff3dc0b6e778",
+    //     "user": "Hexte"
+    // }
     const data = req.body;
     // console.log(data);
     UserModel.findOne({username: data.user}).exec(function (err, User2) {
@@ -57,6 +61,10 @@ router.post('/newChat', function (req, res) {
 })
 
 router.post('/getUserChats', function (req, res) {
+    // {
+    //     "userId": "676019104a1dff3dc0b6e778"
+    // }
+
     const data = req.body;
     ChatModel.find({$or:[{'user1.id': data.userId},{'user2.id': data.userId}]}).exec(function (err, Chats) {
         if(err){

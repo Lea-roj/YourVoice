@@ -6,6 +6,12 @@ var MessageModel = require('../models/MessageModel');
 const {ObjectId} = require('mongodb');
 
 router.post('/newMessage', function (req, res) {
+    // {
+    //     "userId": "67600e4cd05fc635f0f1d5bd",
+    //     "chatId": "6784e1d69456fc1190eb4c83",
+    //     "content": "second test message1"
+    // }
+    
     const data = req.body;
     console.log(data);
     UserModel.findById(data.userId).exec(function (err, User) {
@@ -50,6 +56,9 @@ router.post('/newMessage', function (req, res) {
 })
 
 router.post('/getChatMessages', function (req, res) {
+    // {
+    //     "chatId": "6784e1d69456fc1190eb4c83"
+    // }
     const data = req.body;
     ChatModel.findById(data.chatId).exec(function (err, User) {
         if (err) {
